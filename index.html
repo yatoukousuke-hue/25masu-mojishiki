@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>25マス文字式計算プリント</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #5d6673;
+      --line: #c9d2dc;
+      --paper: #ffffff;
+      --soft: #f5f7f9;
+      --accent: #006d77;
+      --accent-2: #b5542b;
+      --focus: #f3c969;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #edf2f4;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, system-ui, sans-serif;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 24px;
+      background: #fbfcfd;
+      border-right: 1px solid var(--line);
+    }
+
+    .brand {
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.45rem;
+      line-height: 1.25;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .control-group {
+      margin: 0 0 18px;
+      padding: 0 0 18px;
+      border-bottom: 1px solid #e2e8ef;
+    }
+
+    .control-group:last-child {
+      border-bottom: 0;
+    }
+
+    .group-title {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field label,
+    .check-row span {
+      color: #334155;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid #b8c4d0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus,
+    select:focus,
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 32px;
+      margin-bottom: 8px;
+    }
+
+    .check-row input {
+      inline-size: 18px;
+      block-size: 18px;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .actions button {
+      min-height: 42px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary {
+      background: #dde7ef;
+      color: #1f3b4d;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .workspace {
+      padding: 28px;
+      overflow: auto;
+    }
+
+    .toolbar-note {
+      max-width: 920px;
+      margin: 0 auto 18px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .print-stack {
+      display: grid;
+      gap: 24px;
+      justify-items: center;
+    }
+
+    .sheet {
+      width: min(100%, 920px);
+      min-height: 1180px;
+      padding: 34px 38px;
+      background: var(--paper);
+      border: 1px solid #d5dde5;
+      box-shadow: 0 20px 50px rgba(31, 41, 51, .12);
+      page-break-after: always;
+    }
+
+    .sheet.answer {
+      border-top: 8px solid var(--accent-2);
+    }
+
+    .sheet-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .sheet-title {
+      margin: 0;
+      font-size: 1.55rem;
+      line-height: 1.25;
+    }
+
+    .sheet-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 120px 150px;
+      gap: 8px;
+      font-size: .9rem;
+    }
+
+    .meta-line {
+      display: flex;
+      align-items: end;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 72px;
+      border-bottom: 1.5px solid var(--ink);
+      height: 1.5em;
+    }
+
+    .problem-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #eef5f5;
+      color: #144e54;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .grid-wrap {
+      width: 100%;
+      overflow: hidden;
+      border: 2px solid var(--ink);
+      background: #fff;
+    }
+
+    table.calc-grid {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .calc-grid th,
+    .calc-grid td {
+      width: 16.666%;
+      height: 112px;
+      border: 1.5px solid var(--ink);
+      text-align: center;
+      vertical-align: middle;
+      padding: 8px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .calc-grid th {
+      background: #f1f5f8;
+    }
+
+    .calc-grid .corner {
+      background: #dbe7ea;
+      color: #2d3d46;
+      font-size: .88rem;
+    }
+
+    .calc-grid td {
+      color: transparent;
+    }
+
+    .answer .calc-grid td {
+      color: var(--ink);
+      background: #fffdf6;
+    }
+
+    .sheet-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .mini-list {
+      margin: 16px 0 0;
+      padding-left: 1.2em;
+      color: #3a4652;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 920px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        position: static;
+        height: auto;
+      }
+
+      .workspace {
+        padding: 16px;
+      }
+
+      .sheet {
+        min-height: auto;
+        padding: 22px 16px;
+      }
+
+      .sheet-head {
+        grid-template-columns: 1fr;
+      }
+
+      .meta {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .calc-grid th,
+      .calc-grid td {
+        height: 72px;
+        padding: 5px;
+        font-size: .82rem;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .app {
+        display: block;
+      }
+
+      .panel,
+      .toolbar-note {
+        display: none;
+      }
+
+      .workspace {
+        padding: 0;
+        overflow: visible;
+      }
+
+      .print-stack {
+        display: block;
+      }
+
+      .sheet {
+        width: 100%;
+        min-height: 0;
+        height: 277mm;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+      }
+
+      .sheet.answer {
+        border-top: 0;
+      }
+
+      .calc-grid th,
+      .calc-grid td {
+        height: 29mm;
+        border-width: 1.2pt;
+        font-size: 15pt;
+      }
+
+      .calc-grid .corner {
+        font-size: 10pt;
+      }
+
+      .sheet-title {
+        font-size: 19pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="panel" aria-label="プリント設定">
+      <div class="brand">
+        <h1>25マス<br>文字式計算プリント</h1>
+        <p>縦と横の1次式を足して、同類項をまとめる練習をすぐ作れます。</p>
+      </div>
+
+      <section class="control-group">
+        <span class="group-title">プリント</span>
+        <div class="field">
+          <label for="title">タイトル</label>
+          <input id="title" type="text" value="25マス文字式計算">
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="sheets">枚数</label>
+            <input id="sheets" type="number" min="1" max="6" value="1">
+          </div>
+          <div class="field">
+            <label for="seed">合言葉</label>
+            <input id="seed" type="text" value="">
+          </div>
+        </div>
+        <label class="check-row">
+          <input id="answers" type="checkbox" checked>
+          <span>解答も印刷する</span>
+        </label>
+      </section>
+
+      <section class="control-group">
+        <span class="group-title">式の範囲</span>
+        <div class="row-2">
+          <div class="field">
+            <label for="coefMax">xの係数</label>
+            <input id="coefMax" type="number" min="1" max="20" value="9">
+          </div>
+          <div class="field">
+            <label for="constMax">定数</label>
+            <input id="constMax" type="number" min="0" max="30" value="9">
+          </div>
+        </div>
+        <div class="field">
+          <label for="signMode">符号</label>
+          <select id="signMode">
+            <option value="positive">正の数だけ</option>
+            <option value="mixed" selected>正負を混ぜる</option>
+            <option value="negative-heavy">負の数を多めにする</option>
+          </select>
+        </div>
+        <label class="check-row">
+          <input id="allowZeroConst" type="checkbox" checked>
+          <span>定数が0の式も入れる</span>
+        </label>
+        <label class="check-row">
+          <input id="allowOneCoef" type="checkbox" checked>
+          <span>係数1を「x」と表示する</span>
+        </label>
+      </section>
+
+      <section class="control-group">
+        <span class="group-title">表示</span>
+        <div class="field">
+          <label for="subtitle">補足</label>
+          <input id="subtitle" type="text" value="縦の式 + 横の式 を計算しよう">
+        </div>
+        <label class="check-row">
+          <input id="showTips" type="checkbox" checked>
+          <span>下に小さなヒントを入れる</span>
+        </label>
+      </section>
+
+      <div class="actions">
+        <button class="primary" id="generate" type="button">生成</button>
+        <button class="secondary" id="print" type="button">印刷</button>
+        <button class="secondary wide" id="newSeed" type="button">別の問題にする</button>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <p class="toolbar-note">左で条件を選び、「生成」で問題を作ります。合言葉を同じにすると、同じ問題をもう一度出せます。</p>
+      <div class="print-stack" id="printStack" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const controls = {
+      title: $("title"),
+      subtitle: $("subtitle"),
+      sheets: $("sheets"),
+      seed: $("seed"),
+      answers: $("answers"),
+      coefMax: $("coefMax"),
+      constMax: $("constMax"),
+      signMode: $("signMode"),
+      allowZeroConst: $("allowZeroConst"),
+      allowOneCoef: $("allowOneCoef"),
+      showTips: $("showTips"),
+    };
+
+    function hashText(text) {
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i += 1) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function makeRandom(seed) {
+      let state = seed || 1;
+      return function random() {
+        state = Math.imul(state ^ (state >>> 15), 1 | state);
+        state ^= state + Math.imul(state ^ (state >>> 7), 61 | state);
+        return ((state ^ (state >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function intBetween(random, min, max) {
+      return Math.floor(random() * (max - min + 1)) + min;
+    }
+
+    function signedValue(random, max, mode, allowZero) {
+      if (max === 0) return 0;
+      const start = allowZero ? 0 : 1;
+      let value = intBetween(random, start, max);
+      if (value === 0) return 0;
+      if (mode === "positive") return value;
+      if (mode === "negative-heavy") return random() < 0.65 ? -value : value;
+      return random() < 0.5 ? -value : value;
+    }
+
+    function makeExpression(random, settings) {
+      let a = signedValue(random, settings.coefMax, settings.signMode, false);
+      let b = signedValue(random, settings.constMax, settings.signMode, settings.allowZeroConst);
+      if (a === 0) a = settings.signMode === "positive" ? 1 : (random() < 0.5 ? -1 : 1);
+      return { a, b };
+    }
+
+    function formatExpression(expr, settings) {
+      const terms = [];
+      const a = expr.a;
+      const b = expr.b;
+
+      if (a !== 0) {
+        if (settings.allowOneCoef && a === 1) terms.push("x");
+        else if (settings.allowOneCoef && a === -1) terms.push("-x");
+        else terms.push(`${a}x`);
+      }
+
+      if (b !== 0 || terms.length === 0) {
+        if (terms.length === 0) terms.push(String(b));
+        else terms.push(b > 0 ? `+ ${b}` : `- ${Math.abs(b)}`);
+      }
+
+      return terms.join(" ");
+    }
+
+    function makeSheet(random, settings) {
+      const rows = Array.from({ length: 5 }, () => makeExpression(random, settings));
+      const cols = Array.from({ length: 5 }, () => makeExpression(random, settings));
+      const answers = rows.map((row) => cols.map((col) => ({
+        a: row.a + col.a,
+        b: row.b + col.b,
+      })));
+      return { rows, cols, answers };
+    }
+
+    function settingsFromControls() {
+      return {
+        title: controls.title.value.trim() || "25マス文字式計算",
+        subtitle: controls.subtitle.value.trim(),
+        sheets: Math.max(1, Math.min(6, Number(controls.sheets.value) || 1)),
+        seed: controls.seed.value.trim(),
+        includeAnswers: controls.answers.checked,
+        coefMax: Math.max(1, Math.min(20, Number(controls.coefMax.value) || 9)),
+        constMax: Math.max(0, Math.min(30, Number(controls.constMax.value) || 9)),
+        signMode: controls.signMode.value,
+        allowZeroConst: controls.allowZeroConst.checked,
+        allowOneCoef: controls.allowOneCoef.checked,
+        showTips: controls.showTips.checked,
+      };
+    }
+
+    function sheetHtml(sheet, settings, index, answerMode) {
+      const rows = sheet.rows.map((expr, rowIndex) => `<tr><th>${formatExpression(expr, settings)}</th>${sheet.cols.map((_, colIndex) => {
+        const answer = answerMode ? formatExpression(sheet.answers[rowIndex][colIndex], settings) : "&nbsp;";
+        return `<td>${answer}</td>`;
+      }).join("")}</tr>`).join("");
+
+      const colHeads = sheet.cols.map((expr) => `<th>${formatExpression(expr, settings)}</th>`).join("");
+      const tips = settings.showTips ? `
+        <ol class="mini-list">
+          <li>xの項どうし、数だけの項どうしを足す。</li>
+          <li>例：2x + 3 と -5x + 4 は、-3x + 7。</li>
+        </ol>
+      ` : "";
+
+      return `
+        <article class="sheet ${answerMode ? "answer" : ""}">
+          <header class="sheet-head">
+            <div>
+              <h2 class="sheet-title">${settings.title}${answerMode ? " 解答" : ""}</h2>
+              <p class="sheet-subtitle">${settings.subtitle || "&nbsp;"}</p>
+            </div>
+            <div class="meta" aria-label="記入欄">
+              <div class="meta-line">日付 <span class="blank"></span></div>
+              <div class="meta-line">名前 <span class="blank"></span></div>
+              <div class="meta-line">No. ${index + 1}</div>
+              <div class="meta-line">${answerMode ? "解答用" : "問題用"}</div>
+            </div>
+          </header>
+          <div class="problem-info">
+            <span class="pill">xの係数: ±${settings.coefMax}</span>
+            <span class="pill">定数: ±${settings.constMax}</span>
+            <span class="pill">${settings.signMode === "positive" ? "正の数だけ" : settings.signMode === "negative-heavy" ? "負の数多め" : "正負ミックス"}</span>
+          </div>
+          <div class="grid-wrap">
+            <table class="calc-grid" aria-label="${answerMode ? "解答" : "問題"}">
+              <thead>
+                <tr><th class="corner">+</th>${colHeads}</tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          ${answerMode ? "" : tips}
+          <footer class="sheet-footer">
+            <span>縦の式 + 横の式</span>
+            <span>25マス文字式計算</span>
+          </footer>
+        </article>
+      `;
+    }
+
+    function render() {
+      const settings = settingsFromControls();
+      const seedText = settings.seed || String(Date.now());
+      if (!settings.seed) controls.seed.value = seedText.slice(-6);
+      const random = makeRandom(hashText(`${seedText}:${JSON.stringify(settings)}`));
+      const sheets = Array.from({ length: settings.sheets }, () => makeSheet(random, settings));
+      const stack = $("printStack");
+
+      stack.innerHTML = sheets.map((sheet, index) => sheetHtml(sheet, settings, index, false)).join("")
+        + (settings.includeAnswers ? sheets.map((sheet, index) => sheetHtml(sheet, settings, index, true)).join("") : "");
+    }
+
+    $("generate").addEventListener("click", render);
+    $("print").addEventListener("click", () => window.print());
+    $("newSeed").addEventListener("click", () => {
+      controls.seed.value = Math.random().toString(36).slice(2, 8).toUpperCase();
+      render();
+    });
+
+    Object.values(controls).forEach((control) => {
+      control.addEventListener("change", render);
+    });
+
+    controls.seed.value = Math.random().toString(36).slice(2, 8).toUpperCase();
+    render();
+  </script>
+</body>
+</html>
