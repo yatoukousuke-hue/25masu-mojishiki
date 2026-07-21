@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>25マス文字式計算プリント</title>
+  <title>25マス教材メーカー</title>
   <style>
     :root {
       --ink: #1f2933;
@@ -13,6 +13,8 @@
       --soft: #f5f7f9;
       --accent: #006d77;
       --accent-2: #b5542b;
+      --green: #2f7d57;
+      --blue: #315c96;
       --focus: #f3c969;
     }
 
@@ -37,7 +39,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
       min-height: 100vh;
     }
 
@@ -52,7 +54,7 @@
     }
 
     .brand {
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .brand h1 {
@@ -65,6 +67,35 @@
       margin: 8px 0 0;
       color: var(--muted);
       font-size: .92rem;
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 4px;
+      border-radius: 10px;
+      background: #e7edf2;
+    }
+
+    .mode-tabs button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: #3b4651;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .mode-tabs button.active {
+      color: white;
+      background: var(--accent);
+    }
+
+    .mode-panel[hidden] {
+      display: none;
     }
 
     .control-group {
@@ -197,6 +228,14 @@
       border-top: 8px solid var(--accent-2);
     }
 
+    .sheet.english {
+      border-top: 8px solid var(--blue);
+    }
+
+    .sheet.english.answer {
+      border-top-color: var(--green);
+    }
+
     .sheet-head {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -257,6 +296,11 @@
       font-weight: 700;
     }
 
+    .english .pill {
+      background: #edf3ff;
+      color: #244b7f;
+    }
+
     .grid-wrap {
       width: 100%;
       overflow: hidden;
@@ -264,10 +308,14 @@
       background: #fff;
     }
 
-    table.calc-grid {
-      width: 100%;
+    table {
       border-collapse: collapse;
       table-layout: fixed;
+    }
+
+    table.calc-grid,
+    table.english-grid {
+      width: 100%;
     }
 
     .calc-grid th,
@@ -283,11 +331,13 @@
       overflow-wrap: anywhere;
     }
 
-    .calc-grid th {
+    .calc-grid th,
+    .english-grid th {
       background: #f1f5f8;
     }
 
-    .calc-grid .corner {
+    .calc-grid .corner,
+    .english-grid .corner {
       background: #dbe7ea;
       color: #2d3d46;
       font-size: .88rem;
@@ -300,6 +350,99 @@
     .answer .calc-grid td {
       color: var(--ink);
       background: #fffdf6;
+    }
+
+    .english-grid th,
+    .english-grid td {
+      border: 1.35px solid var(--ink);
+      padding: 8px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+
+    .english-grid th {
+      height: 62px;
+      text-align: center;
+      font-size: .92rem;
+    }
+
+    .english-grid td {
+      height: 94px;
+      font-size: .9rem;
+      background: #fff;
+    }
+
+    .answer .english-grid td {
+      background: #fbfff8;
+    }
+
+    .cell-no {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      margin-bottom: 7px;
+      border-radius: 999px;
+      background: #e7edf2;
+      color: #243443;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .write-line {
+      display: block;
+      min-height: 1.55em;
+      margin-top: 8px;
+      border-bottom: 1.3px solid #5c6773;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .question-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 0;
+      border-bottom: 1px solid #d6dee7;
+    }
+
+    .question-body {
+      display: grid;
+      gap: 8px;
+      font-size: .96rem;
+    }
+
+    .answer-text {
+      color: #1f4f35;
+      font-weight: 700;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 4px;
+      padding: 10px;
+      border: 1px solid #cbd7e2;
+      background: #f7fafc;
+    }
+
+    .bank-word {
+      display: inline-flex;
+      min-height: 30px;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid #d6dee7;
+      font-size: .88rem;
+      font-weight: 700;
     }
 
     .sheet-footer {
@@ -351,6 +494,13 @@
         padding: 5px;
         font-size: .82rem;
       }
+
+      .english-grid th,
+      .english-grid td {
+        height: 76px;
+        padding: 5px;
+        font-size: .78rem;
+      }
     }
 
     @media print {
@@ -390,7 +540,8 @@
         box-shadow: none;
       }
 
-      .sheet.answer {
+      .sheet.answer,
+      .sheet.english {
         border-top: 0;
       }
 
@@ -405,6 +556,20 @@
         font-size: 10pt;
       }
 
+      .english-grid th {
+        height: 15mm;
+        font-size: 10pt;
+      }
+
+      .english-grid td {
+        height: 23mm;
+        font-size: 10pt;
+      }
+
+      .question-row {
+        padding: 7px 0;
+      }
+
       .sheet-title {
         font-size: 19pt;
       }
@@ -413,74 +578,135 @@
 </head>
 <body>
   <main class="app">
-    <aside class="panel" aria-label="プリント設定">
+    <aside class="panel" aria-label="教材設定">
       <div class="brand">
-        <h1>25マス<br>文字式計算プリント</h1>
-        <p>縦と横の1次式を足して、同類項をまとめる練習をすぐ作れます。</p>
+        <h1>25マス教材メーカー</h1>
+        <p>文字式の反復練習と、中学生向け英語アクティビティをすぐ印刷できます。</p>
       </div>
 
-      <section class="control-group">
-        <span class="group-title">プリント</span>
-        <div class="field">
-          <label for="title">タイトル</label>
-          <input id="title" type="text" value="25マス文字式計算">
-        </div>
-        <div class="row-2">
+      <div class="mode-tabs" role="tablist" aria-label="教材タイプ">
+        <button id="mathTab" class="active" type="button" role="tab" aria-selected="true">文字式</button>
+        <button id="englishTab" type="button" role="tab" aria-selected="false">英語</button>
+      </div>
+
+      <section id="mathControls" class="mode-panel">
+        <section class="control-group">
+          <span class="group-title">プリント</span>
           <div class="field">
-            <label for="sheets">枚数</label>
-            <input id="sheets" type="number" min="1" max="6" value="1">
+            <label for="mathTitle">タイトル</label>
+            <input id="mathTitle" type="text" value="25マス文字式計算">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="mathSheets">枚数</label>
+              <input id="mathSheets" type="number" min="1" max="6" value="1">
+            </div>
+            <div class="field">
+              <label for="seed">合言葉</label>
+              <input id="seed" type="text" value="">
+            </div>
+          </div>
+          <label class="check-row">
+            <input id="answers" type="checkbox" checked>
+            <span>解答も印刷する</span>
+          </label>
+        </section>
+
+        <section class="control-group">
+          <span class="group-title">式の範囲</span>
+          <div class="row-2">
+            <div class="field">
+              <label for="coefMax">xの係数</label>
+              <input id="coefMax" type="number" min="1" max="20" value="9">
+            </div>
+            <div class="field">
+              <label for="constMax">定数</label>
+              <input id="constMax" type="number" min="0" max="30" value="9">
+            </div>
           </div>
           <div class="field">
-            <label for="seed">合言葉</label>
-            <input id="seed" type="text" value="">
+            <label for="signMode">符号</label>
+            <select id="signMode">
+              <option value="positive">正の数だけ</option>
+              <option value="mixed" selected>正負を混ぜる</option>
+              <option value="negative-heavy">負の数を多めにする</option>
+            </select>
           </div>
-        </div>
-        <label class="check-row">
-          <input id="answers" type="checkbox" checked>
-          <span>解答も印刷する</span>
-        </label>
+          <label class="check-row">
+            <input id="allowZeroConst" type="checkbox" checked>
+            <span>定数が0の式も入れる</span>
+          </label>
+          <label class="check-row">
+            <input id="allowOneCoef" type="checkbox" checked>
+            <span>係数1を「x」と表示する</span>
+          </label>
+        </section>
+
+        <section class="control-group">
+          <span class="group-title">表示</span>
+          <div class="field">
+            <label for="mathSubtitle">補足</label>
+            <input id="mathSubtitle" type="text" value="縦の式 + 横の式 を計算しよう">
+          </div>
+          <label class="check-row">
+            <input id="showTips" type="checkbox" checked>
+            <span>下に小さなヒントを入れる</span>
+          </label>
+        </section>
       </section>
 
-      <section class="control-group">
-        <span class="group-title">式の範囲</span>
-        <div class="row-2">
+      <section id="englishControls" class="mode-panel" hidden>
+        <section class="control-group">
+          <span class="group-title">英語アクティビティ</span>
           <div class="field">
-            <label for="coefMax">xの係数</label>
-            <input id="coefMax" type="number" min="1" max="20" value="9">
+            <label for="englishTitle">タイトル</label>
+            <input id="englishTitle" type="text" value="英語25ミッション">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="englishSheets">枚数</label>
+              <input id="englishSheets" type="number" min="1" max="6" value="1">
+            </div>
+            <div class="field">
+              <label for="englishLevel">範囲</label>
+              <select id="englishLevel">
+                <option value="j1-basic">中1前半</option>
+                <option value="j1-full" selected>中1全体</option>
+                <option value="j2">中2まで</option>
+                <option value="j3">中3まで</option>
+              </select>
+            </div>
           </div>
           <div class="field">
-            <label for="constMax">定数</label>
-            <input id="constMax" type="number" min="0" max="30" value="9">
+            <label for="englishActivity">形式</label>
+            <select id="englishActivity">
+              <option value="sentence-grid" selected>25文づくり</option>
+              <option value="transform">書きかえミッション</option>
+              <option value="word-phrase">単語・熟語ミッション</option>
+            </select>
           </div>
-        </div>
-        <div class="field">
-          <label for="signMode">符号</label>
-          <select id="signMode">
-            <option value="positive">正の数だけ</option>
-            <option value="mixed" selected>正負を混ぜる</option>
-            <option value="negative-heavy">負の数を多めにする</option>
-          </select>
-        </div>
-        <label class="check-row">
-          <input id="allowZeroConst" type="checkbox" checked>
-          <span>定数が0の式も入れる</span>
-        </label>
-        <label class="check-row">
-          <input id="allowOneCoef" type="checkbox" checked>
-          <span>係数1を「x」と表示する</span>
-        </label>
-      </section>
+        </section>
 
-      <section class="control-group">
-        <span class="group-title">表示</span>
-        <div class="field">
-          <label for="subtitle">補足</label>
-          <input id="subtitle" type="text" value="縦の式 + 横の式 を計算しよう">
-        </div>
-        <label class="check-row">
-          <input id="showTips" type="checkbox" checked>
-          <span>下に小さなヒントを入れる</span>
-        </label>
+        <section class="control-group">
+          <span class="group-title">出題</span>
+          <div class="field">
+            <label for="englishTheme">テーマ</label>
+            <select id="englishTheme">
+              <option value="daily" selected>日常・学校</option>
+              <option value="travel">道案内・旅行</option>
+              <option value="culture">日本紹介・行事</option>
+              <option value="mixed">ミックス</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="englishSubtitle">補足</label>
+            <input id="englishSubtitle" type="text" value="英語で書いて、声に出して確認しよう">
+          </div>
+          <label class="check-row">
+            <input id="englishWordBank" type="checkbox" checked>
+            <span>語群を入れる</span>
+          </label>
+        </section>
       </section>
 
       <div class="actions">
@@ -491,7 +717,7 @@
     </aside>
 
     <section class="workspace">
-      <p class="toolbar-note">左で条件を選び、「生成」で問題を作ります。合言葉を同じにすると、同じ問題をもう一度出せます。</p>
+      <p class="toolbar-note" id="toolbarNote">左で条件を選び、「生成」で問題を作ります。合言葉を同じにすると、同じ問題をもう一度出せます。</p>
       <div class="print-stack" id="printStack" aria-live="polite"></div>
     </section>
   </main>
@@ -500,9 +726,9 @@
     const $ = (id) => document.getElementById(id);
 
     const controls = {
-      title: $("title"),
-      subtitle: $("subtitle"),
-      sheets: $("sheets"),
+      mathTitle: $("mathTitle"),
+      mathSubtitle: $("mathSubtitle"),
+      mathSheets: $("mathSheets"),
       seed: $("seed"),
       answers: $("answers"),
       coefMax: $("coefMax"),
@@ -511,6 +737,193 @@
       allowZeroConst: $("allowZeroConst"),
       allowOneCoef: $("allowOneCoef"),
       showTips: $("showTips"),
+      englishTitle: $("englishTitle"),
+      englishSubtitle: $("englishSubtitle"),
+      englishSheets: $("englishSheets"),
+      englishLevel: $("englishLevel"),
+      englishActivity: $("englishActivity"),
+      englishTheme: $("englishTheme"),
+      englishWordBank: $("englishWordBank"),
+    };
+
+    let currentMode = "math";
+
+    const englishData = {
+      subjects: {
+        "j1-basic": ["I", "You", "We", "They", "Ken"],
+        "j1-full": ["I", "You", "We", "They", "My sister", "Ken", "This cat", "Ms. Green"],
+        j2: ["I", "You", "We", "They", "My brother", "Yuki", "Our teacher", "The students"],
+        j3: ["I", "You", "We", "They", "My friend", "The book", "The cake", "English"],
+      },
+      predicates: {
+        daily: {
+          "j1-basic": [
+            { phrase: "am happy", jp: "うれしい" },
+            { phrase: "play soccer", jp: "サッカーをする" },
+            { phrase: "like music", jp: "音楽が好き" },
+            { phrase: "study English", jp: "英語を勉強する" },
+            { phrase: "have a pen", jp: "ペンを持っている" },
+            { phrase: "go to school", jp: "学校へ行く" },
+          ],
+          "j1-full": [
+            { phrase: "plays tennis", jp: "テニスをする" },
+            { phrase: "is busy", jp: "忙しい" },
+            { phrase: "can swim", jp: "泳げる" },
+            { phrase: "likes math", jp: "数学が好き" },
+            { phrase: "has a new bag", jp: "新しいかばんを持っている" },
+            { phrase: "watches TV", jp: "テレビを見る" },
+          ],
+          j2: [
+            { phrase: "was tired yesterday", jp: "昨日疲れていた" },
+            { phrase: "will visit Kyoto", jp: "京都を訪れるつもり" },
+            { phrase: "is studying now", jp: "今勉強している" },
+            { phrase: "went to the library", jp: "図書館へ行った" },
+            { phrase: "has to clean the room", jp: "部屋を掃除しなければならない" },
+            { phrase: "enjoyed cooking", jp: "料理を楽しんだ" },
+          ],
+          j3: [
+            { phrase: "has lived here for three years", jp: "3年間ここに住んでいる" },
+            { phrase: "is loved by many people", jp: "多くの人に愛されている" },
+            { phrase: "wants to be a teacher", jp: "先生になりたい" },
+            { phrase: "knows how to use this app", jp: "このアプリの使い方を知っている" },
+            { phrase: "is the most popular sport", jp: "最も人気のあるスポーツだ" },
+            { phrase: "has already finished homework", jp: "もう宿題を終えた" },
+          ],
+        },
+        travel: {
+          "j1-basic": [
+            { phrase: "go to the park", jp: "公園へ行く" },
+            { phrase: "eat lunch", jp: "昼食を食べる" },
+            { phrase: "see a station", jp: "駅を見る" },
+            { phrase: "want water", jp: "水がほしい" },
+            { phrase: "speak English", jp: "英語を話す" },
+            { phrase: "use a map", jp: "地図を使う" },
+          ],
+          "j1-full": [
+            { phrase: "can help you", jp: "あなたを手伝える" },
+            { phrase: "is near the station", jp: "駅の近くにある" },
+            { phrase: "takes a bus", jp: "バスに乗る" },
+            { phrase: "wants to go there", jp: "そこへ行きたい" },
+            { phrase: "buys a ticket", jp: "切符を買う" },
+            { phrase: "looks for a hotel", jp: "ホテルを探す" },
+          ],
+          j2: [
+            { phrase: "was in Osaka last week", jp: "先週大阪にいた" },
+            { phrase: "will take a train", jp: "電車に乗るつもり" },
+            { phrase: "is looking for the museum", jp: "博物館を探している" },
+            { phrase: "went straight for two blocks", jp: "2ブロックまっすぐ進んだ" },
+            { phrase: "had to buy a ticket", jp: "切符を買わなければならなかった" },
+            { phrase: "enjoyed the festival", jp: "祭りを楽しんだ" },
+          ],
+          j3: [
+            { phrase: "has been to Nara twice", jp: "奈良に2回行ったことがある" },
+            { phrase: "was built near the river", jp: "川の近くに建てられた" },
+            { phrase: "knows where the station is", jp: "駅がどこか知っている" },
+            { phrase: "is famous for old temples", jp: "古い寺で有名だ" },
+            { phrase: "has just arrived", jp: "ちょうど到着したところだ" },
+            { phrase: "is visited by many tourists", jp: "多くの観光客に訪れられる" },
+          ],
+        },
+        culture: {
+          "j1-basic": [
+            { phrase: "like sushi", jp: "寿司が好き" },
+            { phrase: "eat rice", jp: "米を食べる" },
+            { phrase: "play the drums", jp: "太鼓を演奏する" },
+            { phrase: "wear a yukata", jp: "浴衣を着る" },
+            { phrase: "have a festival", jp: "祭りがある" },
+            { phrase: "make origami", jp: "折り紙を作る" },
+          ],
+          "j1-full": [
+            { phrase: "can use chopsticks", jp: "箸を使える" },
+            { phrase: "likes Japanese food", jp: "日本食が好き" },
+            { phrase: "is from Aomori", jp: "青森出身だ" },
+            { phrase: "visits a shrine", jp: "神社を訪れる" },
+            { phrase: "has a red fan", jp: "赤いうちわを持っている" },
+            { phrase: "speaks about anime", jp: "アニメについて話す" },
+          ],
+          j2: [
+            { phrase: "was made in Japan", jp: "日本で作られた" },
+            { phrase: "will show you a picture", jp: "あなたに写真を見せるつもり" },
+            { phrase: "is wearing a kimono", jp: "着物を着ている" },
+            { phrase: "went to a summer festival", jp: "夏祭りへ行った" },
+            { phrase: "has to explain the rule", jp: "ルールを説明しなければならない" },
+            { phrase: "enjoyed listening to rakugo", jp: "落語を聞いて楽しんだ" },
+          ],
+          j3: [
+            { phrase: "has been popular for many years", jp: "長年人気がある" },
+            { phrase: "is eaten on New Year's Day", jp: "元日に食べられる" },
+            { phrase: "knows how to make miso soup", jp: "味噌汁の作り方を知っている" },
+            { phrase: "is one of the oldest temples", jp: "最も古い寺の1つだ" },
+            { phrase: "has already seen the movie", jp: "もうその映画を見た" },
+            { phrase: "wants people to visit Japan", jp: "人々に日本を訪れてほしい" },
+          ],
+        },
+      },
+      transforms: {
+        "j1-basic": [
+          { base: "I am a student.", task: "疑問文に", answer: "Are you a student?" },
+          { base: "You like soccer.", task: "否定文に", answer: "You do not like soccer." },
+          { base: "This is my bag.", task: "疑問文に", answer: "Is this your bag?" },
+          { base: "I play tennis.", task: "否定文に", answer: "I do not play tennis." },
+          { base: "We have lunch.", task: "疑問文に", answer: "Do we have lunch?" },
+          { base: "They are happy.", task: "否定文に", answer: "They are not happy." },
+          { base: "I can swim.", task: "否定文に", answer: "I cannot swim." },
+          { base: "You are busy.", task: "疑問文に", answer: "Are you busy?" },
+        ],
+        "j1-full": [
+          { base: "Ken plays soccer.", task: "否定文に", answer: "Ken does not play soccer." },
+          { base: "She has a bike.", task: "疑問文に", answer: "Does she have a bike?" },
+          { base: "There is a book on the desk.", task: "疑問文に", answer: "Is there a book on the desk?" },
+          { base: "My brother can cook.", task: "否定文に", answer: "My brother cannot cook." },
+          { base: "I want to visit Canada.", task: "疑問文に", answer: "Do you want to visit Canada?" },
+          { base: "He studies English.", task: "否定文に", answer: "He does not study English." },
+          { base: "They are in the gym.", task: "疑問文に", answer: "Are they in the gym?" },
+          { base: "This dog runs fast.", task: "否定文に", answer: "This dog does not run fast." },
+        ],
+        j2: [
+          { base: "I went to the library.", task: "疑問文に", answer: "Did you go to the library?" },
+          { base: "She was at home.", task: "否定文に", answer: "She was not at home." },
+          { base: "They will visit Kyoto.", task: "否定文に", answer: "They will not visit Kyoto." },
+          { base: "Ken is studying now.", task: "疑問文に", answer: "Is Ken studying now?" },
+          { base: "I have to clean my room.", task: "過去形に", answer: "I had to clean my room." },
+          { base: "This cake is made by Yui.", task: "能動態に", answer: "Yui makes this cake." },
+          { base: "I enjoyed reading the book.", task: "否定文に", answer: "I did not enjoy reading the book." },
+          { base: "We were playing soccer.", task: "疑問文に", answer: "Were we playing soccer?" },
+        ],
+        j3: [
+          { base: "I have finished my homework.", task: "疑問文に", answer: "Have you finished your homework?" },
+          { base: "This temple was built in 1600.", task: "能動態に", answer: "People built this temple in 1600." },
+          { base: "English is spoken in many countries.", task: "能動態に", answer: "People speak English in many countries." },
+          { base: "I know the boy. He is playing tennis.", task: "関係代名詞で1文に", answer: "I know the boy who is playing tennis." },
+          { base: "Mt. Fuji is high. Mt. Fuji is beautiful.", task: "最上級を使って", answer: "Mt. Fuji is one of the most beautiful mountains." },
+          { base: "I began to study English three years ago.", task: "現在完了に", answer: "I have studied English for three years." },
+          { base: "Tell me. Where is the station?", task: "間接疑問文に", answer: "Tell me where the station is." },
+          { base: "This book is more interesting than that one.", task: "否定文に", answer: "This book is not more interesting than that one." },
+        ],
+      },
+      words: {
+        daily: [
+          ["朝食", "breakfast"], ["宿題", "homework"], ["教科", "subject"], ["練習する", "practice"],
+          ["〜が得意だ", "be good at"], ["〜を楽しみにする", "look forward to"], ["起きる", "get up"], ["寝る", "go to bed"],
+          ["放課後", "after school"], ["週末", "weekend"], ["たいてい", "usually"], ["一緒に", "together"],
+          ["借りる", "borrow"], ["返す", "return"], ["忘れる", "forget"], ["覚えている", "remember"],
+          ["〜しなければならない", "have to"], ["〜したい", "want to"], ["〜するつもり", "be going to"], ["〜に興味がある", "be interested in"],
+        ],
+        travel: [
+          ["駅", "station"], ["博物館", "museum"], ["右へ曲がる", "turn right"], ["左へ曲がる", "turn left"],
+          ["まっすぐ行く", "go straight"], ["切符", "ticket"], ["地図", "map"], ["近くに", "near"],
+          ["遠い", "far"], ["観光客", "tourist"], ["道案内", "directions"], ["到着する", "arrive"],
+          ["出発する", "leave"], ["横断する", "cross"], ["通り", "street"], ["角", "corner"],
+          ["〜で有名だ", "be famous for"], ["〜へ行ったことがある", "have been to"], ["〜を探す", "look for"], ["写真を撮る", "take a picture"],
+        ],
+        culture: [
+          ["祭り", "festival"], ["神社", "shrine"], ["寺", "temple"], ["浴衣", "yukata"],
+          ["折り紙", "origami"], ["箸", "chopsticks"], ["伝統的な", "traditional"], ["文化", "culture"],
+          ["季節", "season"], ["行事", "event"], ["紹介する", "introduce"], ["説明する", "explain"],
+          ["人気がある", "popular"], ["建てる", "build"], ["作られる", "be made"], ["食べられる", "be eaten"],
+          ["〜の1つ", "one of"], ["〜の作り方", "how to make"], ["長い間", "for a long time"], ["たくさんの", "a lot of"],
+        ],
+      },
     };
 
     function hashText(text) {
@@ -533,6 +946,15 @@
 
     function intBetween(random, min, max) {
       return Math.floor(random() * (max - min + 1)) + min;
+    }
+
+    function pickMany(random, source, count) {
+      const pool = [...source];
+      const result = [];
+      while (result.length < count && pool.length) {
+        result.push(pool.splice(intBetween(random, 0, pool.length - 1), 1)[0]);
+      }
+      return result;
     }
 
     function signedValue(random, max, mode, allowZero) {
@@ -571,7 +993,7 @@
       return terms.join(" ");
     }
 
-    function makeSheet(random, settings) {
+    function makeMathSheet(random, settings) {
       const rows = Array.from({ length: 5 }, () => makeExpression(random, settings));
       const cols = Array.from({ length: 5 }, () => makeExpression(random, settings));
       const answers = rows.map((row) => cols.map((col) => ({
@@ -581,11 +1003,11 @@
       return { rows, cols, answers };
     }
 
-    function settingsFromControls() {
+    function settingsFromMathControls() {
       return {
-        title: controls.title.value.trim() || "25マス文字式計算",
-        subtitle: controls.subtitle.value.trim(),
-        sheets: Math.max(1, Math.min(6, Number(controls.sheets.value) || 1)),
+        title: controls.mathTitle.value.trim() || "25マス文字式計算",
+        subtitle: controls.mathSubtitle.value.trim(),
+        sheets: Math.max(1, Math.min(6, Number(controls.mathSheets.value) || 1)),
         seed: controls.seed.value.trim(),
         includeAnswers: controls.answers.checked,
         coefMax: Math.max(1, Math.min(20, Number(controls.coefMax.value) || 9)),
@@ -597,7 +1019,18 @@
       };
     }
 
-    function sheetHtml(sheet, settings, index, answerMode) {
+    function sheetMeta(index, answerMode) {
+      return `
+        <div class="meta" aria-label="記入欄">
+          <div class="meta-line">日付 <span class="blank"></span></div>
+          <div class="meta-line">名前 <span class="blank"></span></div>
+          <div class="meta-line">No. ${index + 1}</div>
+          <div class="meta-line">${answerMode ? "解答用" : "問題用"}</div>
+        </div>
+      `;
+    }
+
+    function mathSheetHtml(sheet, settings, index, answerMode) {
       const rows = sheet.rows.map((expr, rowIndex) => `<tr><th>${formatExpression(expr, settings)}</th>${sheet.cols.map((_, colIndex) => {
         const answer = answerMode ? formatExpression(sheet.answers[rowIndex][colIndex], settings) : "&nbsp;";
         return `<td>${answer}</td>`;
@@ -618,12 +1051,7 @@
               <h2 class="sheet-title">${settings.title}${answerMode ? " 解答" : ""}</h2>
               <p class="sheet-subtitle">${settings.subtitle || "&nbsp;"}</p>
             </div>
-            <div class="meta" aria-label="記入欄">
-              <div class="meta-line">日付 <span class="blank"></span></div>
-              <div class="meta-line">名前 <span class="blank"></span></div>
-              <div class="meta-line">No. ${index + 1}</div>
-              <div class="meta-line">${answerMode ? "解答用" : "問題用"}</div>
-            </div>
+            ${sheetMeta(index, answerMode)}
           </header>
           <div class="problem-info">
             <span class="pill">xの係数: ±${settings.coefMax}</span>
@@ -647,18 +1075,208 @@
       `;
     }
 
-    function render() {
-      const settings = settingsFromControls();
-      const seedText = settings.seed || String(Date.now());
-      if (!settings.seed) controls.seed.value = seedText.slice(-6);
-      const random = makeRandom(hashText(`${seedText}:${JSON.stringify(settings)}`));
-      const sheets = Array.from({ length: settings.sheets }, () => makeSheet(random, settings));
-      const stack = $("printStack");
-
-      stack.innerHTML = sheets.map((sheet, index) => sheetHtml(sheet, settings, index, false)).join("")
-        + (settings.includeAnswers ? sheets.map((sheet, index) => sheetHtml(sheet, settings, index, true)).join("") : "");
+    function settingsFromEnglishControls() {
+      return {
+        title: controls.englishTitle.value.trim() || "英語25ミッション",
+        subtitle: controls.englishSubtitle.value.trim(),
+        sheets: Math.max(1, Math.min(6, Number(controls.englishSheets.value) || 1)),
+        seed: controls.seed.value.trim(),
+        includeAnswers: controls.answers.checked,
+        level: controls.englishLevel.value,
+        activity: controls.englishActivity.value,
+        theme: controls.englishTheme.value,
+        wordBank: controls.englishWordBank.checked,
+      };
     }
 
+    function themeKeys(settings) {
+      return settings.theme === "mixed" ? ["daily", "travel", "culture"] : [settings.theme];
+    }
+
+    function levelLabel(level) {
+      return {
+        "j1-basic": "中1前半",
+        "j1-full": "中1全体",
+        j2: "中2まで",
+        j3: "中3まで",
+      }[level];
+    }
+
+    function activityLabel(activity) {
+      return {
+        "sentence-grid": "25文づくり",
+        transform: "書きかえミッション",
+        "word-phrase": "単語・熟語ミッション",
+      }[activity];
+    }
+
+    function getPredicates(settings) {
+      return themeKeys(settings).flatMap((key) => englishData.predicates[key][settings.level]);
+    }
+
+    function makeSentenceGrid(random, settings) {
+      const subjects = pickMany(random, englishData.subjects[settings.level], 5);
+      const predicates = pickMany(random, getPredicates(settings), 5);
+      const answers = subjects.map((subject) => predicates.map((item) => `${subject} ${item.phrase}.`));
+      return { subjects, predicates, answers };
+    }
+
+    function sentenceGridHtml(sheet, settings, index, answerMode) {
+      const colHeads = sheet.predicates.map((item) => `<th>${item.jp}<br><small>${answerMode ? item.phrase : ""}</small></th>`).join("");
+      const rows = sheet.subjects.map((subject, rowIndex) => `
+        <tr>
+          <th>${subject}</th>
+          ${sheet.predicates.map((_, colIndex) => {
+            const answer = sheet.answers[rowIndex][colIndex];
+            return `<td><span class="cell-no">${rowIndex * 5 + colIndex + 1}</span>${answerMode ? `<div class="answer-text">${answer}</div>` : `<span class="write-line"></span><span class="write-line"></span>`}</td>`;
+          }).join("")}
+        </tr>
+      `).join("");
+
+      return englishShell(settings, index, answerMode, `
+        <div class="problem-info">
+          <span class="pill">${levelLabel(settings.level)}</span>
+          <span class="pill">主語 × 表現</span>
+          <span class="pill">${settings.theme === "mixed" ? "テーマミックス" : "テーマ別"}</span>
+        </div>
+        <div class="grid-wrap">
+          <table class="english-grid" aria-label="25文づくり">
+            <thead><tr><th class="corner">Subject</th>${colHeads}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${answerMode ? "" : `<ol class="mini-list"><li>左の主語と上の意味を合わせて、英語の文を作る。</li><li>書けたらペアで1文ずつ読み合う。</li></ol>`}
+      `);
+    }
+
+    function makeTransformSheet(random, settings) {
+      const source = englishData.transforms[settings.level];
+      return { rows: pickMany(random, source, Math.min(12, source.length)) };
+    }
+
+    function transformHtml(sheet, settings, index, answerMode) {
+      const rows = sheet.rows.map((item, i) => `
+        <div class="question-row">
+          <span class="cell-no">${i + 1}</span>
+          <div class="question-body">
+            <strong>${item.base}</strong>
+            <span>指示：${item.task}</span>
+            ${answerMode ? `<span class="answer-text">${item.answer}</span>` : `<span class="write-line"></span><span class="write-line"></span>`}
+          </div>
+        </div>
+      `).join("");
+
+      return englishShell(settings, index, answerMode, `
+        <div class="problem-info">
+          <span class="pill">${levelLabel(settings.level)}</span>
+          <span class="pill">文法変換</span>
+          <span class="pill">1問30秒目安</span>
+        </div>
+        <div class="question-list">${rows}</div>
+        ${answerMode ? "" : `<ol class="mini-list"><li>語順・助動詞・三単現・時制を確認して書きかえる。</li><li>早く終わったら、元の文と書きかえ後の文を音読する。</li></ol>`}
+      `);
+    }
+
+    function makeWordPhraseSheet(random, settings) {
+      const source = themeKeys(settings).flatMap((key) => englishData.words[key]);
+      return { rows: pickMany(random, source, 20) };
+    }
+
+    function wordPhraseHtml(sheet, settings, index, answerMode) {
+      const bank = pickMany(makeRandom(hashText(`${settings.seed}:bank:${index}`)), sheet.rows.map((row) => row[1]), sheet.rows.length);
+      const rows = sheet.rows.map((item, i) => `
+        <div class="question-row">
+          <span class="cell-no">${i + 1}</span>
+          <div class="question-body">
+            <strong>${item[0]}</strong>
+            ${answerMode ? `<span class="answer-text">${item[1]}</span>` : `<span class="write-line"></span>`}
+          </div>
+        </div>
+      `).join("");
+
+      return englishShell(settings, index, answerMode, `
+        <div class="problem-info">
+          <span class="pill">${levelLabel(settings.level)}</span>
+          <span class="pill">単語・熟語</span>
+          <span class="pill">20問</span>
+        </div>
+        ${settings.wordBank && !answerMode ? `<div class="word-bank">${bank.map((word) => `<span class="bank-word">${word}</span>`).join("")}</div>` : ""}
+        <div class="question-list">${rows}</div>
+        ${answerMode ? "" : `<ol class="mini-list"><li>語群を見てもよい。慣れてきたら語群なしで挑戦する。</li><li>できた単語・熟語を使って、短い英文を1つ作る。</li></ol>`}
+      `);
+    }
+
+    function englishShell(settings, index, answerMode, body) {
+      return `
+        <article class="sheet english ${answerMode ? "answer" : ""}">
+          <header class="sheet-head">
+            <div>
+              <h2 class="sheet-title">${settings.title}${answerMode ? " 解答" : ""}</h2>
+              <p class="sheet-subtitle">${settings.subtitle || "&nbsp;"}</p>
+            </div>
+            ${sheetMeta(index, answerMode)}
+          </header>
+          ${body}
+          <footer class="sheet-footer">
+            <span>${activityLabel(settings.activity)}</span>
+            <span>中学生英語アクティビティ</span>
+          </footer>
+        </article>
+      `;
+    }
+
+    function renderMath() {
+      const settings = settingsFromMathControls();
+      const seedText = settings.seed || String(Date.now());
+      if (!settings.seed) controls.seed.value = seedText.slice(-6);
+      const random = makeRandom(hashText(`math:${seedText}:${JSON.stringify(settings)}`));
+      const sheets = Array.from({ length: settings.sheets }, () => makeMathSheet(random, settings));
+
+      $("printStack").innerHTML = sheets.map((sheet, index) => mathSheetHtml(sheet, settings, index, false)).join("")
+        + (settings.includeAnswers ? sheets.map((sheet, index) => mathSheetHtml(sheet, settings, index, true)).join("") : "");
+      $("toolbarNote").textContent = "左で条件を選び、「生成」で問題を作ります。合言葉を同じにすると、同じ問題をもう一度出せます。";
+    }
+
+    function renderEnglish() {
+      const settings = settingsFromEnglishControls();
+      const seedText = settings.seed || String(Date.now());
+      if (!settings.seed) controls.seed.value = seedText.slice(-6);
+      const random = makeRandom(hashText(`english:${seedText}:${JSON.stringify(settings)}`));
+      const makers = {
+        "sentence-grid": makeSentenceGrid,
+        transform: makeTransformSheet,
+        "word-phrase": makeWordPhraseSheet,
+      };
+      const renderers = {
+        "sentence-grid": sentenceGridHtml,
+        transform: transformHtml,
+        "word-phrase": wordPhraseHtml,
+      };
+      const sheets = Array.from({ length: settings.sheets }, () => makers[settings.activity](random, settings));
+
+      $("printStack").innerHTML = sheets.map((sheet, index) => renderers[settings.activity](sheet, settings, index, false)).join("")
+        + (settings.includeAnswers ? sheets.map((sheet, index) => renderers[settings.activity](sheet, settings, index, true)).join("") : "");
+      $("toolbarNote").textContent = "英語は中学生までの文法・語彙に絞っています。形式と範囲を変えると、授業の時期に合わせて出題できます。";
+    }
+
+    function render() {
+      if (currentMode === "math") renderMath();
+      else renderEnglish();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      $("mathControls").hidden = mode !== "math";
+      $("englishControls").hidden = mode !== "english";
+      $("mathTab").classList.toggle("active", mode === "math");
+      $("englishTab").classList.toggle("active", mode === "english");
+      $("mathTab").setAttribute("aria-selected", String(mode === "math"));
+      $("englishTab").setAttribute("aria-selected", String(mode === "english"));
+      render();
+    }
+
+    $("mathTab").addEventListener("click", () => setMode("math"));
+    $("englishTab").addEventListener("click", () => setMode("english"));
     $("generate").addEventListener("click", render);
     $("print").addEventListener("click", () => window.print());
     $("newSeed").addEventListener("click", () => {
