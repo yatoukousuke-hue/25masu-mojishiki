@@ -397,6 +397,40 @@
       border-bottom: 1.3px solid #5c6773;
     }
 
+    .mission-cue {
+      display: block;
+      color: #425466;
+      font-size: .82rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .mission-prompt {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .choice-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .choice-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 7px;
+      border: 1px solid #d6dee7;
+      border-radius: 999px;
+      background: #f7fafc;
+      color: #314253;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
     .question-list {
       display: grid;
       gap: 10px;
@@ -566,6 +600,12 @@
         font-size: 10pt;
       }
 
+      .choice-chip {
+        min-height: 18px;
+        padding: 0 5px;
+        font-size: 8pt;
+      }
+
       .question-row {
         padding: 7px 0;
       }
@@ -680,7 +720,7 @@
           <div class="field">
             <label for="englishActivity">形式</label>
             <select id="englishActivity">
-              <option value="sentence-grid" selected>25文づくり</option>
+              <option value="sentence-grid" selected>25ライト英作文</option>
               <option value="transform">書きかえミッション</option>
               <option value="word-phrase">単語・熟語ミッション</option>
             </select>
@@ -744,6 +784,49 @@
       englishActivity: $("englishActivity"),
       englishTheme: $("englishTheme"),
       englishWordBank: $("englishWordBank"),
+    };
+
+    const sentenceMissions = {
+      "j1-basic": [
+        { cue: "be動詞", prompt: "私は忙しいです。", answer: "I am busy.", choices: ["I", "am", "busy"] },
+        { cue: "一般動詞", prompt: "私は英語を勉強します。", answer: "I study English.", choices: ["I", "study", "English"] },
+        { cue: "疑問文", prompt: "あなたはテニスをしますか。", answer: "Do you play tennis?", choices: ["Do", "you", "play", "tennis"] },
+        { cue: "否定文", prompt: "私はサッカーが好きではありません。", answer: "I do not like soccer.", choices: ["I", "do not", "like", "soccer"] },
+        { cue: "can", prompt: "私は泳げます。", answer: "I can swim.", choices: ["I", "can", "swim"] },
+        { cue: "命令文", prompt: "本を開きなさい。", answer: "Open your book.", choices: ["Open", "your", "book"] },
+        { cue: "疑問詞", prompt: "あなたは何が好きですか。", answer: "What do you like?", choices: ["What", "do", "you", "like"] },
+        { cue: "複数形", prompt: "私は2本のペンを持っています。", answer: "I have two pens.", choices: ["I", "have", "two", "pens"] },
+      ],
+      "j1-full": [
+        { cue: "三単現", prompt: "彼は野球をします。", answer: "He plays baseball.", choices: ["He", "plays", "baseball"] },
+        { cue: "三単現の疑問文", prompt: "彼女は英語を話しますか。", answer: "Does she speak English?", choices: ["Does", "she", "speak", "English"] },
+        { cue: "三単現の否定文", prompt: "ケンは数学が好きではありません。", answer: "Ken does not like math.", choices: ["Ken", "does not", "like", "math"] },
+        { cue: "現在進行形", prompt: "ユイは今、料理をしています。", answer: "Yui is cooking now.", choices: ["Yui", "is", "cooking", "now"] },
+        { cue: "過去形", prompt: "私は昨日テレビを見ました。", answer: "I watched TV yesterday.", choices: ["I", "watched", "TV", "yesterday"] },
+        { cue: "There is", prompt: "机の上に本があります。", answer: "There is a book on the desk.", choices: ["There is", "a book", "on", "the desk"] },
+        { cue: "want to", prompt: "私は京都を訪れたいです。", answer: "I want to visit Kyoto.", choices: ["I", "want to", "visit", "Kyoto"] },
+        { cue: "疑問詞", prompt: "あなたはどこに住んでいますか。", answer: "Where do you live?", choices: ["Where", "do", "you", "live"] },
+      ],
+      j2: [
+        { cue: "過去進行形", prompt: "私はその時、本を読んでいました。", answer: "I was reading a book then.", choices: ["I", "was", "reading", "a book", "then"] },
+        { cue: "未来", prompt: "私たちは明日、京都を訪れるつもりです。", answer: "We will visit Kyoto tomorrow.", choices: ["We", "will", "visit", "Kyoto", "tomorrow"] },
+        { cue: "have to", prompt: "私は部屋を掃除しなければなりません。", answer: "I have to clean my room.", choices: ["I", "have to", "clean", "my room"] },
+        { cue: "不定詞", prompt: "私は英語を勉強するために図書館へ行きました。", answer: "I went to the library to study English.", choices: ["went", "to the library", "to study", "English"] },
+        { cue: "動名詞", prompt: "私は音楽を聞くことを楽しみます。", answer: "I enjoy listening to music.", choices: ["I", "enjoy", "listening to", "music"] },
+        { cue: "比較級", prompt: "この本はあの本よりおもしろいです。", answer: "This book is more interesting than that one.", choices: ["This book", "is", "more interesting", "than that one"] },
+        { cue: "受け身", prompt: "このケーキはユイによって作られます。", answer: "This cake is made by Yui.", choices: ["This cake", "is made", "by", "Yui"] },
+        { cue: "接続詞", prompt: "忙しいので、私は家にいます。", answer: "I stay home because I am busy.", choices: ["I stay home", "because", "I am busy"] },
+      ],
+      j3: [
+        { cue: "現在完了・経験", prompt: "私は奈良に2回行ったことがあります。", answer: "I have been to Nara twice.", choices: ["I", "have been to", "Nara", "twice"] },
+        { cue: "現在完了・継続", prompt: "私は3年間ここに住んでいます。", answer: "I have lived here for three years.", choices: ["I", "have lived", "here", "for three years"] },
+        { cue: "現在完了・完了", prompt: "私はもう宿題を終えました。", answer: "I have already finished my homework.", choices: ["I", "have already", "finished", "my homework"] },
+        { cue: "関係代名詞", prompt: "私はテニスをしている少年を知っています。", answer: "I know the boy who is playing tennis.", choices: ["I know", "the boy", "who", "is playing tennis"] },
+        { cue: "間接疑問", prompt: "駅がどこか教えてください。", answer: "Tell me where the station is.", choices: ["Tell me", "where", "the station", "is"] },
+        { cue: "疑問詞 + to", prompt: "私はこのアプリの使い方を知っています。", answer: "I know how to use this app.", choices: ["I know", "how to", "use", "this app"] },
+        { cue: "最上級", prompt: "富士山は日本で最も有名な山です。", answer: "Mt. Fuji is the most famous mountain in Japan.", choices: ["Mt. Fuji", "is", "the most famous", "mountain", "in Japan"] },
+        { cue: "call A B", prompt: "私たちはその犬をポチと呼びます。", answer: "We call the dog Pochi.", choices: ["We", "call", "the dog", "Pochi"] },
+      ],
     };
 
     let currentMode = "math";
@@ -1104,7 +1187,7 @@
 
     function activityLabel(activity) {
       return {
-        "sentence-grid": "25文づくり",
+        "sentence-grid": "25ライト英作文",
         transform: "書きかえミッション",
         "word-phrase": "単語・熟語ミッション",
       }[activity];
@@ -1115,20 +1198,33 @@
     }
 
     function makeSentenceGrid(random, settings) {
-      const subjects = pickMany(random, englishData.subjects[settings.level], 5);
-      const predicates = pickMany(random, getPredicates(settings), 5);
-      const answers = subjects.map((subject) => predicates.map((item) => `${subject} ${item.phrase}.`));
-      return { subjects, predicates, answers };
+      const base = sentenceMissions[settings.level];
+      const themed = getPredicates(settings).map((item) => ({
+        cue: "語句",
+        prompt: item.jp,
+        answer: item.phrase,
+        choices: item.phrase.split(" "),
+      }));
+      const pool = [...base, ...themed];
+      const missions = [];
+      while (missions.length < 25) {
+        missions.push(...pickMany(random, pool, Math.min(pool.length, 25 - missions.length)));
+      }
+      return { missions };
     }
 
     function sentenceGridHtml(sheet, settings, index, answerMode) {
-      const colHeads = sheet.predicates.map((item) => `<th>${item.jp}<br><small>${answerMode ? item.phrase : ""}</small></th>`).join("");
-      const rows = sheet.subjects.map((subject, rowIndex) => `
+      const rows = Array.from({ length: 5 }, (_, rowIndex) => `
         <tr>
-          <th>${subject}</th>
-          ${sheet.predicates.map((_, colIndex) => {
-            const answer = sheet.answers[rowIndex][colIndex];
-            return `<td><span class="cell-no">${rowIndex * 5 + colIndex + 1}</span>${answerMode ? `<div class="answer-text">${answer}</div>` : `<span class="write-line"></span><span class="write-line"></span>`}</td>`;
+          ${Array.from({ length: 5 }, (_, colIndex) => {
+            const mission = sheet.missions[rowIndex * 5 + colIndex];
+            return `<td>
+              <span class="cell-no">${rowIndex * 5 + colIndex + 1}</span>
+              <span class="mission-cue">${mission.cue}</span>
+              <span class="mission-prompt">${mission.prompt}</span>
+              ${answerMode ? `<div class="answer-text">${mission.answer}</div>` : `<span class="write-line"></span>`}
+              ${!answerMode && settings.wordBank ? `<div class="choice-list">${mission.choices.map((choice) => `<span class="choice-chip">${choice}</span>`).join("")}</div>` : ""}
+            </td>`;
           }).join("")}
         </tr>
       `).join("");
@@ -1136,16 +1232,15 @@
       return englishShell(settings, index, answerMode, `
         <div class="problem-info">
           <span class="pill">${levelLabel(settings.level)}</span>
-          <span class="pill">主語 × 表現</span>
-          <span class="pill">${settings.theme === "mixed" ? "テーマミックス" : "テーマ別"}</span>
+          <span class="pill">1マス1語〜短文</span>
+          <span class="pill">文法ミックス</span>
         </div>
         <div class="grid-wrap">
-          <table class="english-grid" aria-label="25文づくり">
-            <thead><tr><th class="corner">Subject</th>${colHeads}</tr></thead>
+          <table class="english-grid" aria-label="25ライト英作文">
             <tbody>${rows}</tbody>
           </table>
         </div>
-        ${answerMode ? "" : `<ol class="mini-list"><li>左の主語と上の意味を合わせて、英語の文を作る。</li><li>書けたらペアで1文ずつ読み合う。</li></ol>`}
+        ${answerMode ? "" : `<ol class="mini-list"><li>条件を見て、空欄に英語を書く。語群は必要なら使う。</li><li>全文を書く必要がないマスもあるので、テンポよく進める。</li></ol>`}
       `);
     }
 
