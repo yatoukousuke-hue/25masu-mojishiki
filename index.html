@@ -636,6 +636,14 @@
             <label for="mathTitle">タイトル</label>
             <input id="mathTitle" type="text" value="25マス文字式計算">
           </div>
+          <div class="field">
+            <label for="mathActivity">計算タイプ</label>
+            <select id="mathActivity">
+              <option value="linear-add" selected>文字式の加法</option>
+              <option value="equation">一次方程式</option>
+              <option value="multiply-divide">文字式の乗除</option>
+            </select>
+          </div>
           <div class="row-2">
             <div class="field">
               <label for="mathSheets">枚数</label>
@@ -767,6 +775,7 @@
 
     const controls = {
       mathTitle: $("mathTitle"),
+      mathActivity: $("mathActivity"),
       mathSubtitle: $("mathSubtitle"),
       mathSheets: $("mathSheets"),
       seed: $("seed"),
@@ -1076,6 +1085,41 @@
       return terms.join(" ");
     }
 
+    function formatLinear(a, b, settings) {
+      return formatExpression({ a, b }, settings);
+    }
+
+    function formatNumber(value) {
+      return value < 0 ? `-${Math.abs(value)}` : String(value);
+    }
+
+    function formatEquationPattern(pattern, settings) {
+      if (pattern.type === "add") return `x ${pattern.n >= 0 ? "+ " + pattern.n : "- " + Math.abs(pattern.n)}`;
+      if (pattern.type === "sub") return `x - ${pattern.n}`;
+      if (pattern.type === "mul") return `${pattern.n}x`;
+      return formatLinear(pattern.a, pattern.b, settings);
+    }
+
+    function solveEquationPattern(pattern, value) {
+      if (pattern.type === "add") return value - pattern.n;
+      if (pattern.type === "sub") return value + pattern.n;
+      if (pattern.type === "mul") return value / pattern.n;
+      return (value - pattern.b) / pattern.a;
+    }
+
+    function formatTermAnswer(value) {
+      if (Number.isInteger(value)) return String(value);
+      return value.toFixed(2).replace(/\.?0+$/, "");
+    }
+
+    function multiplyExpression(expr, factor) {
+      return { a: expr.a * factor, b: expr.b * factor };
+    }
+
+    function divideExpression(expr, divisor) {
+      return { a: expr.a / divisor, b: expr.b / divisor };
+    }
+
     function makeMathSheet(random, settings) {
       const rows = Array.from({ length: 5 }, () => makeExpression(random, settings));
       const cols = Array.from({ length: 5 }, () => makeExpression(random, settings));
@@ -1083,12 +1127,42 @@
         a: row.a + col.a,
         b: row.b + col.b,
       })));
-      return { rows, cols, answers };
+      return { kind: "linear-add", rows, cols, answers };
+    }
+
+    function makeEquationSheet(random, settings) {
+      const patterns = [
+        { type: "add", n: 2 }, { type: "add", n: -3 }, { type: "sub", n: 4 },
+        { type: "sub", n: 7 }, { type: "mul", n: 2 }, { type: "mul", n: 3 },
+        { type: "mul", n: -2 }, { type: "mul", n: -3 },
+      ];
+      const rows = pickMany(random, patterns, 5);
+      const rightSides = pickMany(random, [-18, -12, -6, 0, 6, 12, 18, 24, 30], 5);
+      const cols = rightSides.map((value) => ({ label: `= ${formatNumber(value)}`, x: value }));
+      const answers = rows.map((row) => cols.map((col) => solveEquationPattern(row, col.x)));
+      return { kind: "equation", rows, cols, answers };
+    }
+
+    function makeMultiplyDivideSheet(random, settings) {
+      const rowPool = [
+        { op: "×", n: 2 }, { op: "×", n: -3 }, { op: "×", n: 4 },
+        { op: "÷", n: 2 }, { op: "÷", n: 3 }, { op: "÷", n: -4 },
+      ];
+      const rows = pickMany(random, rowPool, 5);
+      const exprPool = [
+        { a: 6, b: 12 }, { a: -6, b: 18 }, { a: 12, b: -24 },
+        { a: -12, b: -12 }, { a: 18, b: 6 }, { a: 24, b: -36 },
+        { a: 6, b: 0 }, { a: -18, b: 0 },
+      ];
+      const cols = pickMany(random, exprPool, 5);
+      const answers = rows.map((row) => cols.map((col) => row.op === "×" ? multiplyExpression(col, row.n) : divideExpression(col, row.n)));
+      return { kind: "multiply-divide", rows, cols, answers };
     }
 
     function settingsFromMathControls() {
       return {
         title: controls.mathTitle.value.trim() || "25マス文字式計算",
+        activity: controls.mathActivity.value,
         subtitle: controls.mathSubtitle.value.trim(),
         sheets: Math.max(1, Math.min(6, Number(controls.mathSheets.value) || 1)),
         seed: controls.seed.value.trim(),
@@ -1114,16 +1188,38 @@
     }
 
     function mathSheetHtml(sheet, settings, index, answerMode) {
-      const rows = sheet.rows.map((expr, rowIndex) => `<tr><th>${formatExpression(expr, settings)}</th>${sheet.cols.map((_, colIndex) => {
-        const answer = answerMode ? formatExpression(sheet.answers[rowIndex][colIndex], settings) : "&nbsp;";
-        return `<td>${answer}</td>`;
+      const rowLabel = (row) => {
+        if (sheet.kind === "equation") return formatEquationPattern(row, settings);
+        if (sheet.kind === "multiply-divide") return `${row.op} ${formatNumber(row.n)}`;
+        return formatExpression(row, settings);
+      };
+      const colLabel = (col) => {
+        if (sheet.kind === "equation") return col.label;
+        return formatExpression(col, settings);
+      };
+      const answerLabel = (answer) => {
+        if (!answerMode) return "&nbsp;";
+        if (sheet.kind === "equation") return `x = ${formatTermAnswer(answer)}`;
+        return formatExpression(answer, settings);
+      };
+      const cornerLabel = sheet.kind === "equation" ? "=" : sheet.kind === "multiply-divide" ? "×÷" : "+";
+      const activityLabel = {
+        "linear-add": "文字式の加法",
+        equation: "一次方程式",
+        "multiply-divide": "文字式の乗除",
+      }[sheet.kind];
+      const rows = sheet.rows.map((row, rowIndex) => `<tr><th>${rowLabel(row)}</th>${sheet.cols.map((_, colIndex) => {
+        return `<td>${answerLabel(sheet.answers[rowIndex][colIndex])}</td>`;
       }).join("")}</tr>`).join("");
 
-      const colHeads = sheet.cols.map((expr) => `<th>${formatExpression(expr, settings)}</th>`).join("");
+      const colHeads = sheet.cols.map((col) => `<th>${colLabel(col)}</th>`).join("");
       const tips = settings.showTips ? `
         <ol class="mini-list">
-          <li>xの項どうし、数だけの項どうしを足す。</li>
-          <li>例：2x + 3 と -5x + 4 は、-3x + 7。</li>
+          ${sheet.kind === "equation"
+            ? "<li>左の式と上の数を = で結び、x の値を求める。</li><li>例：x + 3 = 7 なら、x = 4。</li>"
+            : sheet.kind === "multiply-divide"
+              ? "<li>上の文字式に、左の数だけの操作を行う。</li><li>例：3x + 6 を ÷ 3 すると、x + 2。</li>"
+              : "<li>xの項どうし、数だけの項どうしを足す。</li><li>例：2x + 3 と -5x + 4 は、-3x + 7。</li>"}
         </ol>
       ` : "";
 
@@ -1137,22 +1233,22 @@
             ${sheetMeta(index, answerMode)}
           </header>
           <div class="problem-info">
+            <span class="pill">${activityLabel}</span>
             <span class="pill">xの係数: ±${settings.coefMax}</span>
-            <span class="pill">定数: ±${settings.constMax}</span>
             <span class="pill">${settings.signMode === "positive" ? "正の数だけ" : settings.signMode === "negative-heavy" ? "負の数多め" : "正負ミックス"}</span>
           </div>
           <div class="grid-wrap">
             <table class="calc-grid" aria-label="${answerMode ? "解答" : "問題"}">
               <thead>
-                <tr><th class="corner">+</th>${colHeads}</tr>
+                <tr><th class="corner">${cornerLabel}</th>${colHeads}</tr>
               </thead>
               <tbody>${rows}</tbody>
             </table>
           </div>
           ${answerMode ? "" : tips}
           <footer class="sheet-footer">
-            <span>縦の式 + 横の式</span>
-            <span>25マス文字式計算</span>
+            <span>${activityLabel}</span>
+            <span>25マス数学計算</span>
           </footer>
         </article>
       `;
@@ -1325,7 +1421,12 @@
       const seedText = settings.seed || String(Date.now());
       if (!settings.seed) controls.seed.value = seedText.slice(-6);
       const random = makeRandom(hashText(`math:${seedText}:${JSON.stringify(settings)}`));
-      const sheets = Array.from({ length: settings.sheets }, () => makeMathSheet(random, settings));
+      const makers = {
+        "linear-add": makeMathSheet,
+        equation: makeEquationSheet,
+        "multiply-divide": makeMultiplyDivideSheet,
+      };
+      const sheets = Array.from({ length: settings.sheets }, () => makers[settings.activity](random, settings));
 
       $("printStack").innerHTML = sheets.map((sheet, index) => mathSheetHtml(sheet, settings, index, false)).join("")
         + (settings.includeAnswers ? sheets.map((sheet, index) => mathSheetHtml(sheet, settings, index, true)).join("") : "");
