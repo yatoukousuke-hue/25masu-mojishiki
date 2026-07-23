@@ -314,7 +314,8 @@
     }
 
     table.calc-grid,
-    table.english-grid {
+    table.english-grid,
+    table.system-grid {
       width: 100%;
     }
 
@@ -350,6 +351,46 @@
     .answer .calc-grid td {
       color: var(--ink);
       background: #fffdf6;
+    }
+
+    .system-grid td {
+      width: 33.333%;
+      height: 220px;
+      border: 1.5px solid var(--ink);
+      vertical-align: top;
+      padding: 12px;
+      background: #fff;
+      font-size: .96rem;
+    }
+
+    .answer .system-grid td {
+      background: #fffdf6;
+    }
+
+    .system-problem {
+      display: grid;
+      gap: 6px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .system-answer {
+      margin-top: 14px;
+      color: #1f4f35;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .work-lines {
+      display: grid;
+      gap: 11px;
+      margin-top: 14px;
+    }
+
+    .work-lines span {
+      display: block;
+      height: 1.25em;
+      border-bottom: 1.2px solid #5c6773;
     }
 
     .english-grid th,
@@ -535,6 +576,12 @@
         padding: 5px;
         font-size: .78rem;
       }
+
+      .system-grid td {
+        height: 170px;
+        padding: 8px;
+        font-size: .82rem;
+      }
     }
 
     @media print {
@@ -600,6 +647,12 @@
         font-size: 10pt;
       }
 
+      .system-grid td {
+        height: 53mm;
+        font-size: 10pt;
+        border-width: 1.2pt;
+      }
+
       .choice-chip {
         min-height: 18px;
         padding: 0 5px;
@@ -641,6 +694,7 @@
             <select id="mathActivity">
               <option value="linear-add" selected>文字式の加法</option>
               <option value="equation">一次方程式</option>
+              <option value="simultaneous">連立方程式</option>
               <option value="multiply-divide">文字式の乗除</option>
             </select>
           </div>
@@ -1120,6 +1174,35 @@
       return { a: expr.a / divisor, b: expr.b / divisor };
     }
 
+    function formatSystemTerm(coef, variable, first) {
+      const abs = Math.abs(coef);
+      const body = `${abs === 1 ? "" : abs}${variable}`;
+      if (first) return coef < 0 ? `-${body}` : body;
+      return coef < 0 ? ` - ${body}` : ` + ${body}`;
+    }
+
+    function formatSystemEquation(eq) {
+      return `${formatSystemTerm(eq.a, "x", true)}${formatSystemTerm(eq.b, "y", false)} = ${eq.c}`;
+    }
+
+    function makeSystemProblem(random) {
+      const coefficientPool = [
+        [1, 1], [1, -1], [2, 1], [2, -1], [-1, 2], [3, 1], [1, 3], [2, 3], [3, -2],
+      ];
+      const x = intBetween(random, -5, 6);
+      const y = intBetween(random, -5, 6);
+      let first = coefficientPool[intBetween(random, 0, coefficientPool.length - 1)];
+      let second = coefficientPool[intBetween(random, 0, coefficientPool.length - 1)];
+      let guard = 0;
+      while (first[0] * second[1] - second[0] * first[1] === 0 && guard < 20) {
+        second = coefficientPool[intBetween(random, 0, coefficientPool.length - 1)];
+        guard += 1;
+      }
+      const eq1 = { a: first[0], b: first[1], c: first[0] * x + first[1] * y };
+      const eq2 = { a: second[0], b: second[1], c: second[0] * x + second[1] * y };
+      return { eq1, eq2, x, y };
+    }
+
     function makeMathSheet(random, settings) {
       const rows = Array.from({ length: 5 }, () => makeExpression(random, settings));
       const cols = Array.from({ length: 5 }, () => makeExpression(random, settings));
@@ -1159,6 +1242,13 @@
       return { kind: "multiply-divide", rows, cols, answers };
     }
 
+    function makeSimultaneousSheet(random) {
+      return {
+        kind: "simultaneous",
+        problems: Array.from({ length: 9 }, () => makeSystemProblem(random)),
+      };
+    }
+
     function settingsFromMathControls() {
       return {
         title: controls.mathTitle.value.trim() || "25マス文字式計算",
@@ -1188,6 +1278,9 @@
     }
 
     function mathSheetHtml(sheet, settings, index, answerMode) {
+      if (sheet.kind === "simultaneous") {
+        return simultaneousSheetHtml(sheet, settings, index, answerMode);
+      }
       const rowLabel = (row) => {
         if (sheet.kind === "equation") return formatEquationPattern(row, settings);
         if (sheet.kind === "multiply-divide") return `${row.op} ${formatNumber(row.n)}`;
@@ -1206,6 +1299,7 @@
       const activityLabel = {
         "linear-add": "文字式の加法",
         equation: "一次方程式",
+        simultaneous: "連立方程式",
         "multiply-divide": "文字式の乗除",
       }[sheet.kind];
       const rows = sheet.rows.map((row, rowIndex) => `<tr><th>${rowLabel(row)}</th>${sheet.cols.map((_, colIndex) => {
@@ -1249,6 +1343,53 @@
           <footer class="sheet-footer">
             <span>${activityLabel}</span>
             <span>25マス数学計算</span>
+          </footer>
+        </article>
+      `;
+    }
+
+    function simultaneousSheetHtml(sheet, settings, index, answerMode) {
+      const rows = Array.from({ length: 3 }, (_, rowIndex) => `
+        <tr>
+          ${Array.from({ length: 3 }, (_, colIndex) => {
+            const problem = sheet.problems[rowIndex * 3 + colIndex];
+            return `<td>
+              <span class="cell-no">${rowIndex * 3 + colIndex + 1}</span>
+              <div class="system-problem">
+                <span>${formatSystemEquation(problem.eq1)}</span>
+                <span>${formatSystemEquation(problem.eq2)}</span>
+              </div>
+              ${answerMode
+                ? `<div class="system-answer">x = ${problem.x}, y = ${problem.y}</div>`
+                : `<div class="work-lines"><span></span><span></span><span></span><span></span></div>`}
+            </td>`;
+          }).join("")}
+        </tr>
+      `).join("");
+
+      return `
+        <article class="sheet ${answerMode ? "answer" : ""}">
+          <header class="sheet-head">
+            <div>
+              <h2 class="sheet-title">${settings.title}${answerMode ? " 解答" : ""}</h2>
+              <p class="sheet-subtitle">${settings.subtitle || "&nbsp;"}</p>
+            </div>
+            ${sheetMeta(index, answerMode)}
+          </header>
+          <div class="problem-info">
+            <span class="pill">連立方程式</span>
+            <span class="pill">3×3</span>
+            <span class="pill">整数解</span>
+          </div>
+          <div class="grid-wrap">
+            <table class="system-grid" aria-label="${answerMode ? "連立方程式の解答" : "連立方程式の問題"}">
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          ${answerMode ? "" : `<ol class="mini-list"><li>加減法または代入法で、x と y の値を求める。</li><li>マスの中の線に途中式を書いてから答える。</li></ol>`}
+          <footer class="sheet-footer">
+            <span>連立方程式</span>
+            <span>3×3数学計算</span>
           </footer>
         </article>
       `;
@@ -1424,6 +1565,7 @@
       const makers = {
         "linear-add": makeMathSheet,
         equation: makeEquationSheet,
+        simultaneous: makeSimultaneousSheet,
         "multiply-divide": makeMultiplyDivideSheet,
       };
       const sheets = Array.from({ length: settings.sheets }, () => makers[settings.activity](random, settings));
