@@ -367,6 +367,28 @@
       background: #fffdf6;
     }
 
+    .independent-grid td {
+      width: 20%;
+      height: 132px;
+      border: 1.5px solid var(--ink);
+      vertical-align: top;
+      padding: 10px;
+      background: #fff;
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+    }
+
+    .answer .independent-grid td {
+      background: #fffdf6;
+    }
+
+    .math-problem {
+      display: block;
+      margin-top: 6px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
     .system-problem {
       display: grid;
       gap: 6px;
@@ -582,6 +604,12 @@
         padding: 8px;
         font-size: .82rem;
       }
+
+      .independent-grid td {
+        height: 96px;
+        padding: 7px;
+        font-size: .84rem;
+      }
     }
 
     @media print {
@@ -653,6 +681,12 @@
         border-width: 1.2pt;
       }
 
+      .independent-grid td {
+        height: 31mm;
+        font-size: 11pt;
+        border-width: 1.2pt;
+      }
+
       .choice-chip {
         min-height: 18px;
         padding: 0 5px;
@@ -693,9 +727,16 @@
             <label for="mathActivity">計算タイプ</label>
             <select id="mathActivity">
               <option value="linear-add" selected>文字式の加法</option>
+              <option value="signed-number">正負の数</option>
+              <option value="expression-value">式の値</option>
               <option value="equation">一次方程式</option>
               <option value="simultaneous">連立方程式</option>
               <option value="multiply-divide">文字式の乗除</option>
+              <option value="proportion">比例式</option>
+              <option value="expansion">展開</option>
+              <option value="factorization">因数分解</option>
+              <option value="square-root">平方根</option>
+              <option value="quadratic">二次方程式</option>
             </select>
           </div>
           <div class="row-2">
@@ -1143,6 +1184,13 @@
       return formatExpression({ a, b }, settings);
     }
 
+    function formatQuadratic(a, b, c) {
+      const first = a === 1 ? "x²" : a === -1 ? "-x²" : `${a}x²`;
+      const middle = b === 0 ? "" : b > 0 ? ` + ${b === 1 ? "" : b}x` : ` - ${Math.abs(b) === 1 ? "" : Math.abs(b)}x`;
+      const last = c === 0 ? "" : c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+      return `${first}${middle}${last}`;
+    }
+
     function formatNumber(value) {
       return value < 0 ? `-${Math.abs(value)}` : String(value);
     }
@@ -1249,6 +1297,133 @@
       };
     }
 
+    function makeIndependentSheet(kind, label, problems, tip) {
+      return { kind: "independent", activity: kind, label, problems, tip };
+    }
+
+    function makeSignedNumberSheet(random) {
+      const problems = Array.from({ length: 25 }, () => {
+        const op = pickMany(random, ["+", "-", "×", "÷"], 1)[0];
+        let a = intBetween(random, -12, 12);
+        let b = intBetween(random, -12, 12) || 3;
+        if (op === "÷") {
+          b = intBetween(random, -9, 9) || 3;
+          const q = intBetween(random, -9, 9) || -2;
+          a = b * q;
+        }
+        const answer = op === "+" ? a + b : op === "-" ? a - b : op === "×" ? a * b : a / b;
+        return { prompt: `(${a}) ${op} (${b})`, answer: String(answer) };
+      });
+      return makeIndependentSheet("signed-number", "正負の数", problems, "符号を先に決めてから計算する。");
+    }
+
+    function makeExpressionValueSheet(random, settings) {
+      const problems = Array.from({ length: 25 }, () => {
+        const expr = makeExpression(random, settings);
+        const x = intBetween(random, -5, 6);
+        const value = expr.a * x + expr.b;
+        return { prompt: `${formatExpression(expr, settings)}　(x = ${x})`, answer: String(value) };
+      });
+      return makeIndependentSheet("expression-value", "式の値", problems, "x に数を代入し、符号に注意して計算する。");
+    }
+
+    function makeProportionSheet(random) {
+      const problems = Array.from({ length: 25 }, () => {
+        const a = intBetween(random, 2, 9);
+        const x = intBetween(random, 2, 12);
+        const b = intBetween(random, 2, 9);
+        const c = a * x;
+        return { prompt: `${a} : ${b} = ${c} : x`, answer: `x = ${b * x}` };
+      });
+      return makeIndependentSheet("proportion", "比例式", problems, "外側どうし、内側どうしをかけて方程式にする。");
+    }
+
+    function makeExpansionSheet(random) {
+      const problems = Array.from({ length: 25 }, () => {
+        const a = intBetween(random, -7, 7) || 2;
+        const b = intBetween(random, -7, 7) || -3;
+        const type = intBetween(random, 1, 3);
+        if (type === 1) {
+          return {
+            prompt: `(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})(x ${b >= 0 ? "+ " + b : "- " + Math.abs(b)})`,
+            answer: formatQuadratic(1, a + b, a * b),
+          };
+        }
+        if (type === 2) {
+          const k = intBetween(random, 2, 6);
+          return {
+            prompt: `${k}(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})`,
+            answer: formatExpression({ a: k, b: k * a }, { allowOneCoef: true }),
+          };
+        }
+        return {
+          prompt: `(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})²`,
+          answer: formatQuadratic(1, 2 * a, a * a),
+        };
+      });
+      return makeIndependentSheet("expansion", "展開", problems, "分配法則と乗法公式を使う。");
+    }
+
+    function makeFactorizationSheet(random) {
+      const problems = Array.from({ length: 25 }, () => {
+        const a = intBetween(random, -8, 8) || 3;
+        const b = intBetween(random, -8, 8) || -2;
+        const type = intBetween(random, 1, 3);
+        if (type === 1) {
+          return {
+            prompt: formatQuadratic(1, a + b, a * b),
+            answer: `(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})(x ${b >= 0 ? "+ " + b : "- " + Math.abs(b)})`,
+          };
+        }
+        if (type === 2) {
+          const k = intBetween(random, 2, 6);
+          return {
+            prompt: `${k}x ${k * a >= 0 ? "+ " + k * a : "- " + Math.abs(k * a)}`,
+            answer: `${k}(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})`,
+          };
+        }
+        return {
+          prompt: formatQuadratic(1, 2 * a, a * a),
+          answer: `(x ${a >= 0 ? "+ " + a : "- " + Math.abs(a)})²`,
+        };
+      });
+      return makeIndependentSheet("factorization", "因数分解", problems, "共通因数、和と積、平方公式を確認する。");
+    }
+
+    function makeSquareRootSheet(random) {
+      const base = [2, 3, 5, 6, 7];
+      const problems = Array.from({ length: 25 }, () => {
+        const r = base[intBetween(random, 0, base.length - 1)];
+        const m = intBetween(random, 2, 6);
+        const n = m * m * r;
+        const type = intBetween(random, 1, 3);
+        if (type === 1) return { prompt: `√${n}`, answer: `${m}√${r}` };
+        if (type === 2) {
+          const a = intBetween(random, 2, 6);
+          const b = intBetween(random, 1, 5);
+          return { prompt: `${a}√${r} + ${b}√${r}`, answer: `${a + b}√${r}` };
+        }
+        const a = intBetween(random, 3, 8);
+        const b = intBetween(random, 1, a - 1);
+        return { prompt: `${a}√${r} - ${b}√${r}`, answer: `${a - b}√${r}` };
+      });
+      return makeIndependentSheet("square-root", "平方根", problems, "√の中を簡単にし、同じ√どうしをまとめる。");
+    }
+
+    function makeQuadraticSheet(random) {
+      const problems = Array.from({ length: 25 }, () => {
+        const a = intBetween(random, -8, 8) || 2;
+        const b = intBetween(random, -8, 8) || -3;
+        const sum = a + b;
+        const product = a * b;
+        return {
+          prompt: `${formatQuadratic(1, sum, product)} = 0`,
+          answer: `x = ${-a}, ${-b}`,
+        };
+      });
+      return makeIndependentSheet("quadratic", "二次方程式", problems, "因数分解して、積が0になる条件を使う。");
+    }
+
     function settingsFromMathControls() {
       return {
         title: controls.mathTitle.value.trim() || "25マス文字式計算",
@@ -1280,6 +1455,9 @@
     function mathSheetHtml(sheet, settings, index, answerMode) {
       if (sheet.kind === "simultaneous") {
         return simultaneousSheetHtml(sheet, settings, index, answerMode);
+      }
+      if (sheet.kind === "independent") {
+        return independentMathSheetHtml(sheet, settings, index, answerMode);
       }
       const rowLabel = (row) => {
         if (sheet.kind === "equation") return formatEquationPattern(row, settings);
@@ -1343,6 +1521,48 @@
           <footer class="sheet-footer">
             <span>${activityLabel}</span>
             <span>25マス数学計算</span>
+          </footer>
+        </article>
+      `;
+    }
+
+    function independentMathSheetHtml(sheet, settings, index, answerMode) {
+      const rows = Array.from({ length: 5 }, (_, rowIndex) => `
+        <tr>
+          ${Array.from({ length: 5 }, (_, colIndex) => {
+            const problem = sheet.problems[rowIndex * 5 + colIndex];
+            return `<td>
+              <span class="cell-no">${rowIndex * 5 + colIndex + 1}</span>
+              <span class="math-problem">${problem.prompt}</span>
+              ${answerMode ? `<div class="answer-text">${problem.answer}</div>` : `<span class="write-line"></span>`}
+            </td>`;
+          }).join("")}
+        </tr>
+      `).join("");
+
+      return `
+        <article class="sheet ${answerMode ? "answer" : ""}">
+          <header class="sheet-head">
+            <div>
+              <h2 class="sheet-title">${settings.title}${answerMode ? " 解答" : ""}</h2>
+              <p class="sheet-subtitle">${settings.subtitle || "&nbsp;"}</p>
+            </div>
+            ${sheetMeta(index, answerMode)}
+          </header>
+          <div class="problem-info">
+            <span class="pill">${sheet.label}</span>
+            <span class="pill">5×5</span>
+            <span class="pill">1マス1問</span>
+          </div>
+          <div class="grid-wrap">
+            <table class="independent-grid" aria-label="${answerMode ? sheet.label + "の解答" : sheet.label + "の問題"}">
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          ${answerMode || !settings.showTips ? "" : `<ol class="mini-list"><li>${sheet.tip}</li><li>1マスずつ答えを書き、終わったら解答用紙で確認する。</li></ol>`}
+          <footer class="sheet-footer">
+            <span>${sheet.label}</span>
+            <span>中学数学 計算練習</span>
           </footer>
         </article>
       `;
@@ -1564,9 +1784,16 @@
       const random = makeRandom(hashText(`math:${seedText}:${JSON.stringify(settings)}`));
       const makers = {
         "linear-add": makeMathSheet,
+        "signed-number": makeSignedNumberSheet,
+        "expression-value": makeExpressionValueSheet,
         equation: makeEquationSheet,
         simultaneous: makeSimultaneousSheet,
         "multiply-divide": makeMultiplyDivideSheet,
+        proportion: makeProportionSheet,
+        expansion: makeExpansionSheet,
+        factorization: makeFactorizationSheet,
+        "square-root": makeSquareRootSheet,
+        quadratic: makeQuadraticSheet,
       };
       const sheets = Array.from({ length: settings.sheets }, () => makers[settings.activity](random, settings));
 
