@@ -815,7 +815,8 @@
               <select id="englishLevel">
                 <option value="j1-basic">中1前半</option>
                 <option value="j1-full" selected>中1全体</option>
-                <option value="j2">中2まで</option>
+                <option value="j2-pre-passive">中2（受け身前）</option>
+                <option value="j2">中2（受け身まで）</option>
                 <option value="j3">中3まで</option>
               </select>
             </div>
@@ -1762,7 +1763,7 @@
         includeAnswers: controls.answers.checked,
         level: controls.englishLevel.value,
         activity: controls.englishActivity.value,
-        grammar: controls.englishGrammar.value,
+        grammar: grammarAllowed(controls.englishLevel.value, controls.englishGrammar.value) ? controls.englishGrammar.value : "mixed",
         theme: controls.englishTheme.value,
         wordBank: controls.englishWordBank.checked,
       };
@@ -1772,11 +1773,16 @@
       return settings.theme === "mixed" ? ["daily", "travel", "culture"] : [settings.theme];
     }
 
+    function dataLevel(level) {
+      return level === "j2-pre-passive" ? "j2" : level;
+    }
+
     function levelLabel(level) {
       return {
         "j1-basic": "中1前半",
         "j1-full": "中1全体",
-        j2: "中2まで",
+        "j2-pre-passive": "中2（受け身前）",
+        j2: "中2（受け身まで）",
         j3: "中3まで",
       }[level];
     }
@@ -1857,19 +1863,63 @@
       return "general-verb";
     }
 
+    function grammarKeyFromPredicate(item) {
+      if (/\bis made\b|\bwas made\b|\bis eaten\b|\bwas built\b|\bis spoken\b|\bis loved\b|\bis visited\b/i.test(item.phrase)) return "passive";
+      if (/\bwill\b|\bhas to\b|\bhave to\b|\bcan\b/i.test(item.phrase)) return "modal";
+      if (/\bwant(s)? to\b|\bhow to\b/i.test(item.phrase)) return "to-infinitive";
+      if (/\bhas been\b|\bhas lived\b|\bhas already\b|\bhas just\b/i.test(item.phrase)) return "perfect";
+      if (/\bmore\b|\bmost\b|\btaller\b|\boldest\b/i.test(item.phrase)) return "comparison";
+      if (/\bis .+ing\b|\bwas .+ing\b|\bwere .+ing\b/i.test(item.phrase)) return "progressive";
+      if (/\bwas\b|\bwent\b|\benjoyed\b|\bhad to\b/i.test(item.phrase)) return "past";
+      if (/\bplays\b|\blikes\b|\bhas\b|\bwatches\b|\btakes\b|\bbuy(s)?\b|\blook(s)?\b|\bspeaks\b|\bvisits\b/i.test(item.phrase)) return "third-person";
+      if (/\bam\b|\bare\b|\bis\b/i.test(item.phrase)) return "be-verb";
+      return "general-verb";
+    }
+
+    function availableGrammars(level) {
+      return {
+        "j1-basic": ["mixed", "be-verb", "general-verb", "questions", "negative", "modal", "imperative", "plural"],
+        "j1-full": ["mixed", "be-verb", "general-verb", "questions", "negative", "modal", "imperative", "plural", "third-person", "progressive", "past", "there-is", "to-infinitive"],
+        "j2-pre-passive": ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "conjunction"],
+        j2: ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "passive", "conjunction"],
+        j3: ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "passive", "conjunction", "perfect", "relative", "indirect-question", "svoc"],
+      }[level] || ["mixed"];
+    }
+
+    function grammarAllowed(level, grammar) {
+      return availableGrammars(level).includes(grammar);
+    }
+
+    function updateEnglishGrammarOptions() {
+      const allowed = availableGrammars(controls.englishLevel.value);
+      Array.from(controls.englishGrammar.options).forEach((option) => {
+        option.disabled = !allowed.includes(option.value);
+      });
+      if (!allowed.includes(controls.englishGrammar.value)) {
+        controls.englishGrammar.value = "mixed";
+      }
+    }
+
+    function filterByLevel(items, settings, getGrammar) {
+      return items.filter((item) => grammarAllowed(settings.level, getGrammar(item)));
+    }
+
     function filterByGrammar(items, settings, getGrammar) {
-      if (settings.grammar === "mixed") return items;
-      const filtered = items.filter((item) => getGrammar(item) === settings.grammar);
-      return filtered.length > 0 ? filtered : items;
+      const levelItems = filterByLevel(items, settings, getGrammar);
+      if (settings.grammar === "mixed") return levelItems;
+      return levelItems.filter((item) => getGrammar(item) === settings.grammar);
     }
 
     function getPredicates(settings) {
-      return themeKeys(settings).flatMap((key) => englishData.predicates[key][settings.level]);
+      const level = dataLevel(settings.level);
+      const predicates = themeKeys(settings).flatMap((key) => englishData.predicates[key][level]);
+      return filterByLevel(predicates, settings, grammarKeyFromPredicate);
     }
 
     function makeSentenceGrid(random, settings) {
-      const base = filterByGrammar(sentenceMissions[settings.level], settings, (item) => grammarKeyFromCue(item.cue));
-      const grammarExtra = settings.grammar === "mixed" ? [] : grammarMissionBanks[settings.grammar] || [];
+      const level = dataLevel(settings.level);
+      const base = filterByGrammar(sentenceMissions[level], settings, (item) => grammarKeyFromCue(item.cue));
+      const grammarExtra = settings.grammar !== "mixed" && grammarAllowed(settings.level, settings.grammar) ? grammarMissionBanks[settings.grammar] || [] : [];
       const themed = settings.grammar === "mixed" ? getPredicates(settings).map((item) => ({
         cue: "語句",
         prompt: item.jp,
@@ -1916,7 +1966,8 @@
     }
 
     function makeTransformSheet(random, settings) {
-      const source = filterByGrammar(englishData.transforms[settings.level], settings, grammarKeyFromTransform);
+      const level = dataLevel(settings.level);
+      const source = filterByGrammar(englishData.transforms[level], settings, grammarKeyFromTransform);
       return { rows: pickMany(random, source, Math.min(12, source.length)) };
     }
 
@@ -2065,10 +2116,14 @@
     });
 
     Object.values(controls).forEach((control) => {
-      control.addEventListener("change", render);
+      control.addEventListener("change", () => {
+        if (control === controls.englishLevel) updateEnglishGrammarOptions();
+        render();
+      });
     });
 
     controls.seed.value = Math.random().toString(36).slice(2, 8).toUpperCase();
+    updateEnglishGrammarOptions();
     render();
   </script>
 </body>
