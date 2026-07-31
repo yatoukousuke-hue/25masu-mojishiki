@@ -122,6 +122,7 @@
     }
 
     .field label,
+    .field-label,
     .check-row span {
       color: #334155;
       font-size: .88rem;
@@ -165,6 +166,33 @@
       inline-size: 18px;
       block-size: 18px;
       accent-color: var(--accent);
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .checkbox-grid label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 6px 8px;
+      border: 1px solid #d6dee7;
+      border-radius: 8px;
+      background: #fff;
+      color: #334155;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .checkbox-grid input {
+      inline-size: 16px;
+      block-size: 16px;
+      accent-color: var(--blue);
+      flex: 0 0 auto;
     }
 
     .actions {
@@ -585,6 +613,10 @@
         grid-template-columns: 1fr 1fr;
       }
 
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+
       .calc-grid th,
       .calc-grid td {
         height: 72px;
@@ -805,21 +837,9 @@
             <label for="englishTitle">タイトル</label>
             <input id="englishTitle" type="text" value="英語25ミッション">
           </div>
-          <div class="row-2">
-            <div class="field">
-              <label for="englishSheets">枚数</label>
-              <input id="englishSheets" type="number" min="1" max="6" value="1">
-            </div>
-            <div class="field">
-              <label for="englishLevel">範囲</label>
-              <select id="englishLevel">
-                <option value="j1-basic">中1前半</option>
-                <option value="j1-full" selected>中1全体</option>
-                <option value="j2-pre-passive">中2（受け身前）</option>
-                <option value="j2">中2（受け身まで）</option>
-                <option value="j3">中3まで</option>
-              </select>
-            </div>
+          <div class="field">
+            <label for="englishSheets">枚数</label>
+            <input id="englishSheets" type="number" min="1" max="6" value="1">
           </div>
           <div class="field">
             <label for="englishActivity">形式</label>
@@ -830,30 +850,29 @@
             </select>
           </div>
           <div class="field">
-            <label for="englishGrammar">文法単元</label>
-            <select id="englishGrammar">
-              <option value="mixed" selected>指定なし（ミックス）</option>
-              <option value="be-verb">be動詞</option>
-              <option value="general-verb">一般動詞</option>
-              <option value="questions">疑問文・疑問詞</option>
-              <option value="negative">否定文</option>
-              <option value="modal">助動詞・have to</option>
-              <option value="imperative">命令文</option>
-              <option value="plural">複数形</option>
-              <option value="third-person">三単現</option>
-              <option value="progressive">進行形</option>
-              <option value="past">過去形</option>
-              <option value="there-is">There is / are</option>
-              <option value="to-infinitive">不定詞</option>
-              <option value="gerund">動名詞</option>
-              <option value="comparison">比較</option>
-              <option value="passive">受け身</option>
-              <option value="conjunction">接続詞</option>
-              <option value="perfect">現在完了</option>
-              <option value="relative">関係代名詞</option>
-              <option value="indirect-question">間接疑問</option>
-              <option value="svoc">第5文型</option>
-            </select>
+            <span class="field-label">文法単元（複数選択）</span>
+            <div class="checkbox-grid" id="englishGrammarChoices">
+              <label><input type="checkbox" name="englishGrammar" value="be-verb" checked><span>be動詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="general-verb" checked><span>一般動詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="questions" checked><span>疑問文・疑問詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="negative" checked><span>否定文</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="modal"><span>助動詞・have to</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="imperative"><span>命令文</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="plural"><span>複数形</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="third-person"><span>三単現</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="progressive"><span>進行形</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="past"><span>過去形</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="there-is"><span>There is / are</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="to-infinitive"><span>不定詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="gerund"><span>動名詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="comparison"><span>比較</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="passive"><span>受け身</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="conjunction"><span>接続詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="perfect"><span>現在完了</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="relative"><span>関係代名詞</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="indirect-question"><span>間接疑問</span></label>
+              <label><input type="checkbox" name="englishGrammar" value="svoc"><span>第5文型</span></label>
+            </div>
           </div>
         </section>
 
@@ -911,9 +930,8 @@
       englishTitle: $("englishTitle"),
       englishSubtitle: $("englishSubtitle"),
       englishSheets: $("englishSheets"),
-      englishLevel: $("englishLevel"),
       englishActivity: $("englishActivity"),
-      englishGrammar: $("englishGrammar"),
+      englishGrammarChoices: $("englishGrammarChoices"),
       englishTheme: $("englishTheme"),
       englishWordBank: $("englishWordBank"),
     };
@@ -1071,6 +1089,158 @@
         { cue: "name A B", prompt: "彼らはその猫をミケと名付けました。", answer: "They named the cat Mike.", choices: ["They", "named", "the cat", "Mike"] },
       ],
     };
+
+    const extraGrammarMissionBanks = {
+      "be-verb": [
+        ["be動詞", "私は今、教室にいます。", "I am in the classroom now."],
+        ["be動詞", "その映画はとてもおもしろいです。", "The movie is very interesting."],
+        ["be動詞の疑問文", "彼らは同じチームですか。", "Are they on the same team?"],
+        ["be動詞の否定文", "私の兄は家にいません。", "My brother is not at home."],
+        ["be動詞", "今日は月曜日です。", "It is Monday today."],
+      ],
+      "general-verb": [
+        ["一般動詞", "私は週末に本を読みます。", "I read books on weekends."],
+        ["一般動詞", "私たちは昼食後に体育館を使います。", "We use the gym after lunch."],
+        ["一般動詞の疑問文", "あなたは毎朝早く起きますか。", "Do you get up early every morning?"],
+        ["一般動詞の否定文", "彼らは放課後ここに来ません。", "They do not come here after school."],
+        ["一般動詞", "ユイとケンは英語で話します。", "Yui and Ken speak English."],
+      ],
+      questions: [
+        ["疑問詞", "あなたはいつ宿題をしますか。", "When do you do your homework?"],
+        ["疑問詞", "だれがこの机を使いますか。", "Who uses this desk?"],
+        ["疑問詞", "なぜあなたは英語が好きなのですか。", "Why do you like English?"],
+        ["疑問文", "その店は駅の近くにありますか。", "Is the shop near the station?"],
+        ["疑問文", "彼女は昨日ここに来ましたか。", "Did she come here yesterday?"],
+      ],
+      negative: [
+        ["否定文", "私はその答えを知りません。", "I do not know the answer."],
+        ["否定文", "この問題は難しくありません。", "This question is not difficult."],
+        ["否定文", "彼女は朝、テレビを見ません。", "She does not watch TV in the morning."],
+        ["否定文", "私たちは昨日その公園へ行きませんでした。", "We did not go to the park yesterday."],
+        ["否定文", "ケンは今、走っていません。", "Ken is not running now."],
+      ],
+      modal: [
+        ["can", "あなたはこの漢字を読むことができますか。", "Can you read this kanji?"],
+        ["will", "私は今夜、友だちに電話するつもりです。", "I will call my friend tonight."],
+        ["be going to", "彼らは来週試合をする予定です。", "They are going to have a game next week."],
+        ["have to", "私たちは明日までにこのレポートを書かなければなりません。", "We have to write this report by tomorrow."],
+        ["must", "あなたはこのルールを守らなければなりません。", "You must follow this rule."],
+      ],
+      imperative: [
+        ["命令文", "ここにあなたの答えを書きなさい。", "Write your answer here."],
+        ["命令文", "この文を声に出して読みなさい。", "Read this sentence aloud."],
+        ["命令文", "次のページを見なさい。", "Look at the next page."],
+        ["否定命令文", "この部屋で食べてはいけません。", "Do not eat in this room."],
+        ["命令文", "駅で私を待ってください。", "Please wait for me at the station."],
+      ],
+      plural: [
+        ["複数形", "机の上に5本の鉛筆があります。", "There are five pencils on the desk."],
+        ["複数形", "私は2人の兄弟がいます。", "I have two brothers."],
+        ["複数形", "その子どもたちは公園で遊んでいます。", "The children are playing in the park."],
+        ["複数形", "これらは私の新しい靴です。", "These are my new shoes."],
+        ["複数形", "私たちはたくさんの写真を撮りました。", "We took many pictures."],
+      ],
+      "third-person": [
+        ["三単現", "私の母は毎朝コーヒーを飲みます。", "My mother drinks coffee every morning."],
+        ["三単現", "そのバスは7時に出発します。", "The bus leaves at seven."],
+        ["三単現", "彼は週に3回ピアノを練習します。", "He practices the piano three times a week."],
+        ["三単現の疑問文", "あなたの先生は自転車で来ますか。", "Does your teacher come by bike?"],
+        ["三単現の否定文", "この機械は水を使いません。", "This machine does not use water."],
+      ],
+      progressive: [
+        ["現在進行形", "私たちは今、昼食を食べています。", "We are eating lunch now."],
+        ["現在進行形", "雨が強く降っています。", "It is raining hard."],
+        ["現在進行形", "彼女は新しい歌を歌っています。", "She is singing a new song."],
+        ["過去進行形", "彼らはその時、バスを待っていました。", "They were waiting for the bus then."],
+        ["過去進行形", "私が帰った時、父は夕食を作っていました。", "My father was cooking dinner when I came home."],
+      ],
+      past: [
+        ["過去形", "私たちは先月、博物館を訪れました。", "We visited the museum last month."],
+        ["過去形", "彼は今朝早く起きました。", "He got up early this morning."],
+        ["過去形", "私は駅で友だちに会いました。", "I met my friend at the station."],
+        ["過去形の疑問文", "あなたは先週その映画を見ましたか。", "Did you see the movie last week?"],
+        ["過去形の否定文", "彼女は昨日その本を読みませんでした。", "She did not read the book yesterday."],
+      ],
+      "there-is": [
+        ["There is", "壁に大きな地図があります。", "There is a big map on the wall."],
+        ["There are", "私たちの町には3つの中学校があります。", "There are three junior high schools in our town."],
+        ["There is", "冷蔵庫の中に牛乳があります。", "There is some milk in the fridge."],
+        ["There areの疑問文", "教室に何人の生徒がいますか。", "How many students are there in the classroom?"],
+        ["There isの否定文", "この近くに病院はありません。", "There is not a hospital near here."],
+      ],
+      "to-infinitive": [
+        ["不定詞", "私は水を買うために店へ行きました。", "I went to the store to buy water."],
+        ["不定詞", "英語を学ぶことは大切です。", "To learn English is important."],
+        ["不定詞", "私には読むべき本がたくさんあります。", "I have many books to read."],
+        ["want to", "彼女は将来、医者になりたいです。", "She wants to be a doctor in the future."],
+        ["疑問詞 + to", "私は次に何をすべきか分かりません。", "I do not know what to do next."],
+      ],
+      gerund: [
+        ["動名詞", "早く起きることは私には難しいです。", "Getting up early is difficult for me."],
+        ["動名詞", "私の父は写真を撮ることが好きです。", "My father likes taking pictures."],
+        ["動名詞", "彼らは川で泳ぐことをやめました。", "They stopped swimming in the river."],
+        ["動名詞", "私は夕食を作ることに興味があります。", "I am interested in cooking dinner."],
+        ["動名詞", "ユイはギターを弾くことを楽しみました。", "Yui enjoyed playing the guitar."],
+      ],
+      comparison: [
+        ["比較級", "この問題はあの問題より簡単です。", "This question is easier than that one."],
+        ["比較級", "今日は昨日より暑いです。", "Today is hotter than yesterday."],
+        ["比較級", "英語は私にとって数学と同じくらい大切です。", "English is as important as math for me."],
+        ["最上級", "この犬は3匹の中で一番大きいです。", "This dog is the biggest of the three."],
+        ["最上級", "彼女はクラスで最も速く走ります。", "She runs the fastest in her class."],
+      ],
+      passive: [
+        ["受け身", "この歌は多くの人に愛されています。", "This song is loved by many people."],
+        ["受け身", "その窓は昨日ケンによって壊されました。", "The window was broken by Ken yesterday."],
+        ["受け身", "この本は英語で書かれています。", "This book is written in English."],
+        ["受け身", "その祭りは毎年8月に開かれます。", "The festival is held in August every year."],
+        ["受け身", "その写真は私の母によって撮られました。", "The picture was taken by my mother."],
+      ],
+      conjunction: [
+        ["接続詞", "雨が降ったら、私は家にいます。", "If it rains, I will stay home."],
+        ["接続詞", "私は疲れていましたが、宿題を終えました。", "I was tired, but I finished my homework."],
+        ["接続詞", "彼が来た時、私たちは昼食を食べていました。", "When he came, we were eating lunch."],
+        ["接続詞", "私は早く起きたので、朝食を作りました。", "I got up early, so I made breakfast."],
+        ["接続詞", "彼女は忙しいけれど、毎日英語を勉強します。", "Though she is busy, she studies English every day."],
+      ],
+      perfect: [
+        ["現在完了・経験", "あなたは今までに歌舞伎を見たことがありますか。", "Have you ever seen kabuki?"],
+        ["現在完了・経験", "私は一度も北海道へ行ったことがありません。", "I have never been to Hokkaido."],
+        ["現在完了・継続", "彼は朝からずっとここにいます。", "He has been here since this morning."],
+        ["現在完了・完了", "彼女はちょうど駅に着いたところです。", "She has just arrived at the station."],
+        ["現在完了・完了", "あなたはもう昼食を食べましたか。", "Have you eaten lunch yet?"],
+      ],
+      relative: [
+        ["関係代名詞", "私には大阪に住んでいるおじがいます。", "I have an uncle who lives in Osaka."],
+        ["関係代名詞", "これは私が一番好きな歌です。", "This is the song that I like the best."],
+        ["関係代名詞", "昨日私を助けてくれた少女はユイです。", "The girl who helped me yesterday is Yui."],
+        ["関係代名詞", "これは私の父が作った机です。", "This is the desk that my father made."],
+        ["関係代名詞", "私たちは英語を話せる先生を探しています。", "We are looking for a teacher who can speak English."],
+      ],
+      "indirect-question": [
+        ["間接疑問", "私は彼がどこに住んでいるか知りません。", "I do not know where he lives."],
+        ["間接疑問", "あなたはこのバスがいつ出発するか知っていますか。", "Do you know when this bus leaves?"],
+        ["間接疑問", "私はなぜ彼女が悲しいのか分かります。", "I know why she is sad."],
+        ["間接疑問", "駅がどちらの方向か教えてください。", "Please tell me which way the station is."],
+        ["間接疑問", "彼が何を作っているか見てください。", "Look at what he is making."],
+      ],
+      svoc: [
+        ["第5文型", "その話は私たちをわくわくさせました。", "The story made us excited."],
+        ["第5文型", "私たちはその部屋をきれいに保ちます。", "We keep the room clean."],
+        ["第5文型", "彼らはその赤ちゃんをハナと名付けました。", "They named the baby Hana."],
+        ["第5文型", "ニュースは彼を有名にしました。", "The news made him famous."],
+        ["第5文型", "私はこの考えを大切だと分かりました。", "I found this idea important."],
+      ],
+    };
+
+    Object.entries(extraGrammarMissionBanks).forEach(([grammar, rows]) => {
+      grammarMissionBanks[grammar].push(...rows.map(([cue, prompt, answer]) => ({
+        cue,
+        prompt,
+        answer,
+        choices: answer.replace(/[.?]$/, "").split(" "),
+      })));
+    });
 
     let currentMode = "math";
 
@@ -1250,6 +1420,81 @@
           ["〜の1つ", "one of"], ["〜の作り方", "how to make"], ["長い間", "for a long time"], ["たくさんの", "a lot of"],
         ],
       },
+    };
+
+    const extraTransformRows = {
+      "be-verb": [
+        { base: "They are in the music room.", task: "疑問文に", answer: "Are they in the music room?" },
+        { base: "This question is easy.", task: "否定文に", answer: "This question is not easy." },
+      ],
+      "general-verb": [
+        { base: "I use this dictionary.", task: "疑問文に", answer: "Do you use this dictionary?" },
+        { base: "We practice basketball after school.", task: "否定文に", answer: "We do not practice basketball after school." },
+      ],
+      questions: [
+        { base: "You live in Tokyo.", task: "whereを使った疑問文に", answer: "Where do you live?" },
+        { base: "Ken studies English after dinner.", task: "whenを使った疑問文に", answer: "When does Ken study English?" },
+      ],
+      negative: [
+        { base: "She is reading a book.", task: "否定文に", answer: "She is not reading a book." },
+        { base: "They went to the museum.", task: "否定文に", answer: "They did not go to the museum." },
+      ],
+      modal: [
+        { base: "I swim fast.", task: "canを使って", answer: "I can swim fast." },
+        { base: "We clean this room.", task: "have toを使って", answer: "We have to clean this room." },
+      ],
+      "third-person": [
+        { base: "I study math every day.", task: "主語をHeにして", answer: "He studies math every day." },
+        { base: "They have lunch at twelve.", task: "主語をSheにして", answer: "She has lunch at twelve." },
+      ],
+      progressive: [
+        { base: "Ken plays soccer.", task: "現在進行形に", answer: "Ken is playing soccer." },
+        { base: "They waited for the bus.", task: "過去進行形に", answer: "They were waiting for the bus." },
+      ],
+      past: [
+        { base: "I see Yui at the station.", task: "過去形に", answer: "I saw Yui at the station." },
+        { base: "She reads this book.", task: "過去形に", answer: "She read this book." },
+      ],
+      "there-is": [
+        { base: "A cat is under the table.", task: "There isで始めて", answer: "There is a cat under the table." },
+        { base: "Two parks are in our town.", task: "There areで始めて", answer: "There are two parks in our town." },
+      ],
+      "to-infinitive": [
+        { base: "I went to the park. I played soccer.", task: "toを使って1文に", answer: "I went to the park to play soccer." },
+        { base: "I do not know. What should I do next?", task: "what toを使って1文に", answer: "I do not know what to do next." },
+      ],
+      gerund: [
+        { base: "I like to read books.", task: "動名詞を使って", answer: "I like reading books." },
+        { base: "To swim in the sea is fun.", task: "動名詞を使って", answer: "Swimming in the sea is fun." },
+      ],
+      comparison: [
+        { base: "This bag is big. That bag is small.", task: "比較級を使って", answer: "This bag is bigger than that one." },
+        { base: "No mountain in Japan is higher than Mt. Fuji.", task: "最上級を使って", answer: "Mt. Fuji is the highest mountain in Japan." },
+      ],
+      passive: [
+        { base: "Yui made this cake.", task: "受け身に", answer: "This cake was made by Yui." },
+        { base: "Many people visit this temple.", task: "受け身に", answer: "This temple is visited by many people." },
+      ],
+      conjunction: [
+        { base: "I stayed home. I was sick.", task: "becauseを使って1文に", answer: "I stayed home because I was sick." },
+        { base: "It rains tomorrow. We will stay home.", task: "ifを使って1文に", answer: "If it rains tomorrow, we will stay home." },
+      ],
+      perfect: [
+        { base: "I began to live here three years ago.", task: "現在完了に", answer: "I have lived here for three years." },
+        { base: "She finished lunch just now.", task: "現在完了に", answer: "She has just finished lunch." },
+      ],
+      relative: [
+        { base: "I know the girl. She can play the guitar.", task: "関係代名詞で1文に", answer: "I know the girl who can play the guitar." },
+        { base: "This is the camera. My father uses it.", task: "関係代名詞で1文に", answer: "This is the camera that my father uses." },
+      ],
+      "indirect-question": [
+        { base: "Where does he live? I do not know.", task: "間接疑問で1文に", answer: "I do not know where he lives." },
+        { base: "When will she come? Do you know?", task: "間接疑問で1文に", answer: "Do you know when she will come?" },
+      ],
+      svoc: [
+        { base: "The news was good. We became happy.", task: "makeを使って", answer: "The news made us happy." },
+        { base: "The room is clean. We keep it so.", task: "keepを使って", answer: "We keep the room clean." },
+      ],
     };
 
     function hashText(text) {
@@ -1755,26 +2000,29 @@
     }
 
     function settingsFromEnglishControls() {
+      const selectedGrammars = selectedEnglishGrammars();
       return {
         title: controls.englishTitle.value.trim() || "英語25ミッション",
         subtitle: controls.englishSubtitle.value.trim(),
         sheets: Math.max(1, Math.min(6, Number(controls.englishSheets.value) || 1)),
         seed: controls.seed.value.trim(),
         includeAnswers: controls.answers.checked,
-        level: controls.englishLevel.value,
+        level: "j3",
         activity: controls.englishActivity.value,
-        grammar: grammarAllowed(controls.englishLevel.value, controls.englishGrammar.value) ? controls.englishGrammar.value : "mixed",
+        grammars: selectedGrammars,
+        grammar: selectedGrammars.length === 1 ? selectedGrammars[0] : "mixed",
         theme: controls.englishTheme.value,
         wordBank: controls.englishWordBank.checked,
       };
     }
 
-    function themeKeys(settings) {
-      return settings.theme === "mixed" ? ["daily", "travel", "culture"] : [settings.theme];
+    function selectedEnglishGrammars() {
+      return Array.from(controls.englishGrammarChoices.querySelectorAll('input[name="englishGrammar"]:checked'))
+        .map((input) => input.value);
     }
 
-    function dataLevel(level) {
-      return level === "j2-pre-passive" ? "j2" : level;
+    function themeKeys(settings) {
+      return settings.theme === "mixed" ? ["daily", "travel", "culture"] : [settings.theme];
     }
 
     function levelLabel(level) {
@@ -1819,6 +2067,30 @@
         "indirect-question": "間接疑問",
         svoc: "第5文型",
       }[grammar] || "文法ミックス";
+    }
+
+    function allGrammarKeys() {
+      return [
+        "be-verb", "general-verb", "questions", "negative", "modal", "imperative", "plural",
+        "third-person", "progressive", "past", "there-is", "to-infinitive", "gerund",
+        "comparison", "passive", "conjunction", "perfect", "relative", "indirect-question", "svoc",
+      ];
+    }
+
+    function activeGrammars(settings) {
+      return settings.grammars.length > 0 ? settings.grammars : allGrammarKeys();
+    }
+
+    function grammarSelected(settings, grammar) {
+      return activeGrammars(settings).includes(grammar);
+    }
+
+    function grammarSummaryLabel(settings) {
+      const grammars = activeGrammars(settings);
+      if (settings.grammars.length === 0) return "全単元ミックス";
+      if (grammars.length === 1) return grammarLabel(grammars[0]);
+      if (grammars.length <= 3) return grammars.map(grammarLabel).join("・");
+      return `${grammars.length}単元ミックス`;
     }
 
     function grammarKeyFromCue(cue) {
@@ -1876,56 +2148,26 @@
       return "general-verb";
     }
 
-    function availableGrammars(level) {
-      return {
-        "j1-basic": ["mixed", "be-verb", "general-verb", "questions", "negative", "modal", "imperative", "plural"],
-        "j1-full": ["mixed", "be-verb", "general-verb", "questions", "negative", "modal", "imperative", "plural", "third-person", "progressive", "past", "there-is", "to-infinitive"],
-        "j2-pre-passive": ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "conjunction"],
-        j2: ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "passive", "conjunction"],
-        j3: ["mixed", "questions", "negative", "modal", "progressive", "past", "to-infinitive", "gerund", "comparison", "passive", "conjunction", "perfect", "relative", "indirect-question", "svoc"],
-      }[level] || ["mixed"];
-    }
-
-    function grammarAllowed(level, grammar) {
-      return availableGrammars(level).includes(grammar);
-    }
-
-    function updateEnglishGrammarOptions() {
-      const allowed = availableGrammars(controls.englishLevel.value);
-      Array.from(controls.englishGrammar.options).forEach((option) => {
-        option.disabled = !allowed.includes(option.value);
-      });
-      if (!allowed.includes(controls.englishGrammar.value)) {
-        controls.englishGrammar.value = "mixed";
-      }
-    }
-
-    function filterByLevel(items, settings, getGrammar) {
-      return items.filter((item) => grammarAllowed(settings.level, getGrammar(item)));
-    }
-
     function filterByGrammar(items, settings, getGrammar) {
-      const levelItems = filterByLevel(items, settings, getGrammar);
-      if (settings.grammar === "mixed") return levelItems;
-      return levelItems.filter((item) => getGrammar(item) === settings.grammar);
+      return items.filter((item) => grammarSelected(settings, getGrammar(item)));
     }
 
     function getPredicates(settings) {
-      const level = dataLevel(settings.level);
-      const predicates = themeKeys(settings).flatMap((key) => englishData.predicates[key][level]);
-      return filterByLevel(predicates, settings, grammarKeyFromPredicate);
+      const levels = ["j1-basic", "j1-full", "j2", "j3"];
+      const predicates = themeKeys(settings).flatMap((key) => levels.flatMap((level) => englishData.predicates[key][level] || []));
+      return filterByGrammar(predicates, settings, grammarKeyFromPredicate);
     }
 
     function makeSentenceGrid(random, settings) {
-      const level = dataLevel(settings.level);
-      const base = filterByGrammar(sentenceMissions[level], settings, (item) => grammarKeyFromCue(item.cue));
-      const grammarExtra = settings.grammar !== "mixed" && grammarAllowed(settings.level, settings.grammar) ? grammarMissionBanks[settings.grammar] || [] : [];
-      const themed = settings.grammar === "mixed" ? getPredicates(settings).map((item) => ({
+      const levels = ["j1-basic", "j1-full", "j2", "j3"];
+      const base = filterByGrammar(levels.flatMap((level) => sentenceMissions[level]), settings, (item) => grammarKeyFromCue(item.cue));
+      const grammarExtra = activeGrammars(settings).flatMap((grammar) => grammarMissionBanks[grammar] || []);
+      const themed = getPredicates(settings).map((item) => ({
         cue: "語句",
         prompt: item.jp,
         answer: item.phrase,
         choices: item.phrase.split(" "),
-      })) : [];
+      }));
       const pool = [...base, ...grammarExtra, ...themed];
       const missions = [];
       while (missions.length < 25) {
@@ -1952,9 +2194,8 @@
 
       return englishShell(settings, index, answerMode, `
         <div class="problem-info">
-          <span class="pill">${levelLabel(settings.level)}</span>
           <span class="pill">1マス1語〜短文</span>
-          <span class="pill">${grammarLabel(settings.grammar)}</span>
+          <span class="pill">${grammarSummaryLabel(settings)}</span>
         </div>
         <div class="grid-wrap">
           <table class="english-grid" aria-label="25ライト英作文">
@@ -1966,8 +2207,11 @@
     }
 
     function makeTransformSheet(random, settings) {
-      const level = dataLevel(settings.level);
-      const source = filterByGrammar(englishData.transforms[level], settings, grammarKeyFromTransform);
+      const levels = ["j1-basic", "j1-full", "j2", "j3"];
+      const source = [
+        ...filterByGrammar(levels.flatMap((level) => englishData.transforms[level]), settings, grammarKeyFromTransform),
+        ...activeGrammars(settings).flatMap((grammar) => extraTransformRows[grammar] || []),
+      ];
       return { rows: pickMany(random, source, Math.min(12, source.length)) };
     }
 
@@ -1985,9 +2229,8 @@
 
       return englishShell(settings, index, answerMode, `
         <div class="problem-info">
-          <span class="pill">${levelLabel(settings.level)}</span>
           <span class="pill">文法変換</span>
-          <span class="pill">${grammarLabel(settings.grammar)}</span>
+          <span class="pill">${grammarSummaryLabel(settings)}</span>
           <span class="pill">1問30秒目安</span>
         </div>
         <div class="question-list">${rows}</div>
@@ -2014,7 +2257,6 @@
 
       return englishShell(settings, index, answerMode, `
         <div class="problem-info">
-          <span class="pill">${levelLabel(settings.level)}</span>
           <span class="pill">単語・熟語</span>
           <span class="pill">20問</span>
         </div>
@@ -2087,7 +2329,7 @@
 
       $("printStack").innerHTML = sheets.map((sheet, index) => renderers[settings.activity](sheet, settings, index, false)).join("")
         + (settings.includeAnswers ? sheets.map((sheet, index) => renderers[settings.activity](sheet, settings, index, true)).join("") : "");
-      $("toolbarNote").textContent = "英語は中学生までの文法・語彙に絞っています。形式と範囲を変えると、授業の時期に合わせて出題できます。";
+      $("toolbarNote").textContent = "英語は中学生までの文法・語彙に絞っています。複数の文法単元を選ぶと、その内容だけを混ぜて出題できます。";
     }
 
     function render() {
@@ -2116,14 +2358,10 @@
     });
 
     Object.values(controls).forEach((control) => {
-      control.addEventListener("change", () => {
-        if (control === controls.englishLevel) updateEnglishGrammarOptions();
-        render();
-      });
+      control.addEventListener("change", render);
     });
 
     controls.seed.value = Math.random().toString(36).slice(2, 8).toUpperCase();
-    updateEnglishGrammarOptions();
     render();
   </script>
 </body>
